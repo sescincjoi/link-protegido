@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Área Protegida</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root { --radius: 16px; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+      display: grid; place-items: center; background: #0f172a; color: #e5e7eb;
+    }
+    .card {
+      width: min(90vw, 460px);
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    .hdr {
+      padding: 20px 22px; border-bottom: 1px solid #1f2937; background: #0b1220;
+    }
+    .hdr h1 { font-size: 1.05rem; margin: 0; letter-spacing: .2px; }
+    .cnt { padding: 22px; }
+    label { display:block; font-size:.9rem; margin: 0 0 8px; color:#9ca3af; }
+    input[type="password"] {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #374151;
+      background: #0b1220; color: #e5e7eb; outline: none; font-size: 1rem;
+    }
+    input[type="password"]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.25); }
+    button {
+      margin-top: 14px; width: 100%; padding: 12px 14px; border-radius: 12px; border: none;
+      background: #6366f1; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer;
+    }
+    button:hover { filter: brightness(1.06); }
+    .msg { margin-top: 12px; font-size: .9rem; color: #fda4af; min-height: 1.2em; }
+    .foot { padding: 16px 22px; border-top: 1px solid #1f2937; font-size: .8rem; color:#9ca3af;}
+    .hide { display:none; }
+    .shake { animation: shake .45s; }
+    @keyframes shake { 10%, 90% {transform: translateX(-1px);} 20%, 80% {transform: translateX(2px);} 30%, 50%, 70% {transform: translateX(-4px);} 40%, 60% {transform: translateX(4px);} }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="hdr"><h1>Área protegida</h1></div>
+    <form class="cnt" id="form">
+      <label for="pw">Digite a senha para acessar o link</label>
+      <input id="pw" type="password" placeholder="Senha" autocomplete="current-password" required />
+      <button type="submit">Entrar</button>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </form>
+    <div class="foot">Dica: esta proteção é apenas básica (cliente). Não use para conteúdos sensíveis.</div>
+  </div>
+
+  <script>
+    // ========================
+    // CONFIGURAÇÃO
+    // ========================
+
+    // Lista de senhas (hash SHA-256) e URLs correspondentes
+    // Formato: { hash: "sha256_hex", url: "https://..." }
+    const LINKS_PROTEGIDOS = [
+      {
+        hash: "773f46043726440e98f61e90039525989ca4a3349119329f4b949630133de9fc", // senha1
+        url: "https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAANAASxvXr5UQlpTV0xDNE1FMTZFU0ZDVUtNMThaVllZOS4u"
+      },
+      {
+        hash: "5d41402abc4b2a76b9719d911017c592", // senha2
+        url: "https://exemplo.com/link2"
+      },
+      {
+        hash: "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae", // senha3
+        url: "https://exemplo.com/link3"
+      }
+    ];
+
+    const MAX_TRIES = 5;
+
+    // ========================
+    // LÓGICA
+    // ========================
+    const $ = sel => document.querySelector(sel);
+    const form = $('#form');
+    const pwInput = $('#pw');
+    const msg = $('#msg');
+    const card = $('#card');
+
+    let tries = +(sessionStorage.getItem('tries') || 0);
+
+    async function sha256Hex(str){
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    function delay(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      msg.textContent = '';
+
+      if (tries >= MAX_TRIES) {
+        msg.textContent = 'Muitas tentativas. Aguarde 30 segundos e tente novamente.';
+        form.classList.add('shake');
+        await delay(300);
+        form.classList.remove('shake');
+        await delay(30000);
+        tries = 0;
+        sessionStorage.setItem('tries', tries);
+        return;
+      }
+
+      const value = pwInput.value;
+      if (!value) return;
+
+      const hash = await sha256Hex(value);
+      const linkObj = LINKS_PROTEGIDOS.find(item => item.hash === hash);
+
+      if (linkObj) {
+        msg.textContent = 'Acessando…';
+        await delay(200);
+        location.replace(linkObj.url);
+      } else {
+        tries++;
+        sessionStorage.setItem('tries', tries);
+        msg.textContent = 'Senha incorreta. Tente novamente.';
+        form.classList.add('shake');
+        await delay(450);
+        form.classList.remove('shake');
+        pwInput.select();
+      }
+    });
+
+    pwInput.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter') form.requestSubmit();
+    });
+  </script>
+</body>
+</html>
