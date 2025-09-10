@@ -59,7 +59,17 @@
     }
     button:hover { filter: brightness(1.06); }
     .msg { margin: 0.5em 0 0 0.2em; font-size: .9rem; color: #e04e61; min-height: 1.2em; }
-    .foot { display: none; padding: 16px 22px; border-top: 1px solid #1f2937; font-size: .8rem; color:#9ca3af;}
+    .foot {
+      padding: 1em 0 1.3em 2.1em;
+      border-top: 1px solid rgb(0 0 0 / 15%);
+      font-size: .8rem;
+      color: #a0a0a0;
+    }
+    .foot a {
+      text-decoration: none;
+      color: #a0a0a0;
+      font-weight: 500;
+    }
     .hide { display:none; }
     .shake { animation: shake .45s; }
     @keyframes shake { 10%, 90% {transform: translateX(-1px);} 20%, 80% {transform: translateX(2px);} 30%, 50%, 70% {transform: translateX(-4px);} 40%, 60% {transform: translateX(4px);} }
@@ -74,7 +84,7 @@
       <button type="submit">Entrar</button>
       <div class="msg" id="msg" aria-live="polite"></div>
     </form>
-    <div class="foot">Dica: esta proteção é apenas básica (cliente). Não use para conteúdos sensíveis.</div>
+    <div class="foot">Designed by <a href="https://www.instagram.com/mmocena/">@mmocena</a></div>
   </div>
 
   <script>
