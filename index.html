@@ -11,34 +11,55 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
-      display: grid; place-items: center; background: #0f172a; color: #e5e7eb;
+      display: grid;
+      place-items: center;
+      background: url(https://images.pexels.com/photos/2030190/pexels-photo-2030190.jpeg?_gl=1*1n66gxr*_ga*MTkzMjk5NDA3OC4xNzU3NDYzMDM3*_ga_8JE65Q40S6*czE3NTc0NjMwMzYkbzEkZzEkdDE3NTc0NjMwNTIkajQ0JGwwJGgw);
+      color: #e5e7eb;
+      background-size: cover;
+      background-position: center;
     }
     .card {
       width: min(90vw, 460px);
-      background: #111827;
-      border: 1px solid #1f2937;
+      background: rgb(0 0 0 / 60%);
+      border: 1px solid #0000007a;
       border-radius: var(--radius);
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
       overflow: hidden;
     }
     .hdr {
-      padding: 20px 22px; border-bottom: 1px solid #1f2937; background: #0b1220;
+      padding: 1em 2em;
+      border-bottom: 1px solid #00000073;
+      background: rgb(0 0 0 / 60%);
     }
-    .hdr h1 { font-size: 1.05rem; margin: 0; letter-spacing: .2px; }
-    .cnt { padding: 22px; }
-    label { display:block; font-size:.9rem; margin: 0 0 8px; color:#9ca3af; }
+    .hdr h1 { font-size: 1.2em; margin: 0; letter-spacing: .2px; }
+    .cnt { padding: 1.5em; }
+    label { display: block; font-size: .9rem; margin: 0 0.2em 0.5em; color: #c2c2c2; font-weight: 400; }
     input[type="password"] {
-      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #374151;
-      background: #0b1220; color: #e5e7eb; outline: none; font-size: 1rem;
+      width: 80%;
+      padding: 4% 9.5%;
+      border-radius: 0.7em;
+      border: 1px solid #000000cf;
+      background: #000000ed;
+      color: #e5e7eb;
+      outline: none;
+      font-size: 1rem;  
     }
-    input[type="password"]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.25); }
+    input[type="password"]:focus { box-shadow: 0 0 7px rgb(255 255 255 / 40%); border: none; }
     button {
-      margin-top: 14px; width: 100%; padding: 12px 14px; border-radius: 12px; border: none;
-      background: #6366f1; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer;
+      margin-top: 0.6em;
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: none;
+      background: rgb(255 255 255 / 60%);
+      color: #000;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
     }
     button:hover { filter: brightness(1.06); }
-    .msg { margin-top: 12px; font-size: .9rem; color: #fda4af; min-height: 1.2em; }
-    .foot { padding: 16px 22px; border-top: 1px solid #1f2937; font-size: .8rem; color:#9ca3af;}
+    .msg { margin: 0.5em 0 0 0.2em; font-size: .9rem; color: #e04e61; min-height: 1.2em; }
+    .foot { display: none; padding: 16px 22px; border-top: 1px solid #1f2937; font-size: .8rem; color:#9ca3af;}
     .hide { display:none; }
     .shake { animation: shake .45s; }
     @keyframes shake { 10%, 90% {transform: translateX(-1px);} 20%, 80% {transform: translateX(2px);} 30%, 50%, 70% {transform: translateX(-4px);} 40%, 60% {transform: translateX(4px);} }
@@ -46,7 +67,7 @@
 </head>
 <body>
   <div class="card" id="card">
-    <div class="hdr"><h1>Área protegida</h1></div>
+    <div class="hdr"><h1>Área destinada aos<br>Bombeiros de Aeródromo</h1></div>
     <form class="cnt" id="form">
       <label for="pw">Digite a senha para acessar o link</label>
       <input id="pw" type="password" placeholder="Senha" autocomplete="current-password" required />
