@@ -1,329 +1,367 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de Extintores</title>
+<title>Sistema de Cadastro e Controle</title>
+
 <style>
-/* -------------------- ESTILO GERAL --------------------- */
+/* ================================
+   ESTILOS GERAIS
+================================ */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f3f4f6;
 }
 
-/* -------------------- TABS --------------------- */
+header {
+  background: #1e293b;
+  padding: 1rem;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+/* ================================
+   ABAS
+================================ */
 .tabs {
   display: flex;
-  background: #1f2937;
+  background: #0f172a;
 }
+
 .tab {
+  padding: 1rem;
+  color: white;
+  cursor: pointer;
   flex: 1;
   text-align: center;
-  padding: 1rem;
-  color: #fff;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-}
-.tab.active {
-  border-bottom: 3px solid #10b981;
-  background: #111827;
+  transition: 0.3s;
 }
 
+.tab:hover {
+  background: #1e293b;
+}
+
+.tab.active {
+  background: #334155;
+  font-weight: bold;
+}
+
+/* ================================
+   ÁREAS DAS ABAS
+================================ */
 .tab-content {
   display: none;
-  padding: 1rem;
+  padding: 1.5rem;
 }
+
 .tab-content.active {
   display: block;
+  background: white;
 }
 
-/* -------------------- LISTAGEM EM USO --------------------- */
-.item-uso {
-  background: #fff;
-  padding: 1rem;
-  margin-bottom: .8rem;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-  border-left: 5px solid #3b82f6;
-}
-
-.checkbox-uso {
-  margin-right: 10px;
-}
-
-/* -------------------- ESTOQUE (CARDS) --------------------- */
-.estoque-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.card-estoque {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 6px;
-  border-left: 5px solid #10b981;
-}
-
-.card-estoque h3 {
-  margin-top: 0;
-}
-
-.btn {
-  display: inline-block;
-  padding: .4rem .8rem;
-  background: #3b82f6;
-  color: #fff;
-  border-radius: 4px;
-  margin-top: .5rem;
-  cursor: pointer;
-}
-
-.btn.red {
-  background: #ef4444;
-}
-
-.btn.green {
-  background: #10b981;
-}
-
-.actions-bar {
-  background: #fff;
-  padding: .5rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  display: none;
-}
-
-/* -------------------- MODAL --------------------- */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* ================================
+   FORMULÁRIOS E CAMPOS
+================================ */
+input, select {
+  padding: .6rem;
+  margin: .4rem 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,.5);
-  display: none;
-  justify-content: center;
-  align-items: center;
+  box-sizing: border-box;
 }
-.modal-content {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 6px;
-  width: 90%;
-  max-width: 400px;
+
+button {
+  padding: .7rem 1rem;
+  margin-top: .7rem;
+  cursor: pointer;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+/* ================================
+   TABELAS
+================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  padding: .7rem;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background: #f1f5f9;
+}
+
+/* ================================
+   MODAL
+================================ */
+.modal-bg {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal {
+  background:white;
+  padding:2rem;
+  width:90%;
+  max-width:400px;
+  border-radius:6px;
 }
 </style>
 </head>
 <body>
 
-<!-- ------------------------------ TABS ------------------------------ -->
+<header>Sistema – Cadastro e Controle</header>
+
+<!-- ================================
+     ABAS
+================================ -->
 <div class="tabs">
-  <div class="tab active" data-tab="uso">Em Uso</div>
-  <div class="tab" data-tab="estoque">Estoque</div>
+  <div class="tab active" onclick="openTab('cadastro')">Cadastro</div>
+  <div class="tab" onclick="openTab('estoque')">Estoque</div>
+  <div class="tab" onclick="openTab('config')">Configurações</div>
 </div>
 
-<!-- ------------------------------ AÇÕES EM LOTE ------------------------------ -->
-<div id="actionsBar" class="actions-bar">
-  <strong id="countSelecionados">0 selecionados</strong> —
-  <span class="btn green" onclick="abrirModalPermuta(true)">Permutar</span>
-  <span class="btn" onclick="mudarStatusLote()">Mudar Status</span>
-  <span class="btn red" onclick="limparSelecao()">Cancelar</span>
+<!-- ================================
+     ABA CADASTRO
+================================ -->
+<div id="cadastro" class="tab-content active">
+
+  <h2>Novo Item</h2>
+
+  <label>Nome do item</label>
+  <input id="itemName">
+
+  <label>Categoria</label>
+  <select id="itemCategory"></select>
+
+  <label>Quantidade inicial</label>
+  <input id="itemQuantity" type="number" min="0">
+
+  <button onclick="addItem()">Cadastrar</button>
 </div>
 
-<!-- ------------------------------ ABA "EM USO" ------------------------------ -->
-<div id="tab-uso" class="tab-content active">
+<!-- ================================
+     ABA ESTOQUE
+================================ -->
+<div id="estoque" class="tab-content">
+  <h2>Controle de Estoque</h2>
 
-  <h2>Extintores em Uso</h2>
+  <button onclick="loadItems()">🔄 Recarregar</button>
 
-  <div id="listaUso"></div>
-
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Item</th>
+        <th>Categoria</th>
+        <th>Qtd</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
-<!-- ------------------------------ ABA "ESTOQUE" ------------------------------ -->
-<div id="tab-estoque" class="tab-content">
+<!-- ================================
+     ABA CONFIGURAÇÕES
+================================ -->
+<div id="config" class="tab-content">
+  <h2>Configurações do Sistema</h2>
 
-  <h2>Estoque por Tipo/Kg</h2>
+  <label>Adicionar nova categoria</label>
+  <input id="newCategory">
 
-  <div class="estoque-container" id="estoqueContainer"></div>
+  <button onclick="addCategory()">Adicionar Categoria</button>
 
+  <h3>Categorias existentes</h3>
+  <ul id="categoriesList"></ul>
+
+  <button style="background:#dc2626" onclick="openResetModal()">Resetar TUDO</button>
 </div>
 
-<!-- ------------------------------ MODAL PERMUTA ------------------------------ -->
-<div id="modalPermuta" class="modal">
-  <div class="modal-content">
-    <h3>Permutar Extintores</h3>
-
-    <p id="infoPermuta"></p>
-
-    <label>Escolher categoria do estoque para retirar:</label>
-    <select id="categoriaReposicao">
-      <option>Operacional</option>
-      <option>Não Operacional</option>
-      <option>Em Manutenção</option>
-      <option>Emprestado</option>
-    </select>
-
-    <br><br>
-    <span class="btn green" onclick="confirmarPermuta()">Confirmar</span>
-    <span class="btn red" onclick="fecharModal()">Cancelar</span>
+<!-- ================================
+     MODAL DE RESET
+================================ -->
+<div id="modalReset" class="modal-bg">
+  <div class="modal">
+    <h3>Confirmar Reset Geral?</h3>
+    <p>Todos os dados serão apagados!</p>
+    <button onclick="resetSystem()" style="background:#dc2626">Sim, apagar tudo</button>
+    <button onclick="closeResetModal()">Cancelar</button>
   </div>
 </div>
 
 <script>
-// ---------------- SIMULAÇÃO DE DADOS (depois substituímos pela planilha) -------------------
-let emUso = [
-  { id: 1, tipo: 'PQS 4kg', status: 'Operacional', local: 'Administração' },
-  { id: 2, tipo: 'CO2 6kg', status: 'Não Operacional', local: 'Hangar' },
-  { id: 3, tipo: 'PQS 4kg', status: 'Não Operacional', local: 'Sala Técnica' },
-];
+/* ================================
+   CONFIG
+================================ */
+const SCRIPT_URL = "COLE_AQUI_SEU_WEBAPP_URL";
 
-let estoque = {
-  "PQS 4kg": {
-    operacional: 18,
-    naooperacional: 4,
-    manutencao: 2,
-    emprestado: 1
-  },
-  "CO2 6kg": {
-    operacional: 5,
-    naooperacional: 1,
-    manutencao: 0,
-    emprestado: 0
-  }
-};
+/* ================================
+   SISTEMA DE ABAS
+================================ */
+function openTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[onclick="openTab('${name}')"]`).classList.add('active');
+  document.getElementById(name).classList.add('active');
+}
 
-let selecionados = []; 
-let permutaLote = false;
+/* ================================
+   CATEGORIAS
+================================ */
+async function loadCategories() {
+  const res = await fetch(SCRIPT_URL + "?action=getCategories");
+  const categories = await res.json();
 
-// ---------------- FUNÇÃO PARA RENDERIZAR EXTINTORES EM USO -------------------
-function renderUso() {
-  let container = document.getElementById('listaUso');
-  container.innerHTML = '';
+  const select = document.getElementById("itemCategory");
+  const list = document.getElementById("categoriesList");
 
-  emUso.forEach(ext => {
-    let isSelecionado = selecionados.includes(ext.id);
+  select.innerHTML = "";
+  list.innerHTML = "";
 
-    container.innerHTML += `
-      <div class="item-uso" onclick="toggleSelecionar(${ext.id})">
-        <div>
-          <input type="checkbox" class="checkbox-uso" ${isSelecionado ? 'checked' : ''}>
-          <strong>${ext.tipo}</strong> – ${ext.local}<br>
-          <small>Status: ${ext.status}</small>
-        </div>
-      </div>
-    `;
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.textContent = cat;
+    select.appendChild(opt);
+
+    const li = document.createElement("li");
+    li.textContent = cat;
+    list.appendChild(li);
   });
 }
-renderUso();
 
-// ---------------- FUNÇÃO PARA RENDERIZAR ESTOQUE -------------------
-function renderEstoque() {
-  let container = document.getElementById("estoqueContainer");
-  container.innerHTML = "";
+async function addCategory() {
+  const name = document.getElementById("newCategory").value.trim();
+  if (!name) return alert("Digite algo!");
 
-  Object.keys(estoque).forEach(tipo => {
-    let e = estoque[tipo];
-    container.innerHTML += `
-      <div class="card-estoque">
-        <h3>${tipo}</h3>
-        Operacionais: ${e.operacional}<br>
-        Não operacionais: ${e.naooperacional}<br>
-        Em manutenção: ${e.manutencao}<br>
-        Emprestados: ${e.emprestado}<br>
-        Total: ${e.operacional + e.naooperacional + e.manutencao + e.emprestado}
-        <br><br>
-        <span class="btn green" onclick="abrirModalPermuta(false, '${tipo}')">Permutar</span>
-      </div>
+  await fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "addCategory", name })
+  });
+
+  document.getElementById("newCategory").value = "";
+  loadCategories();
+}
+
+/* ================================
+   ITENS
+================================ */
+async function addItem() {
+  const name = document.getElementById("itemName").value.trim();
+  const category = document.getElementById("itemCategory").value;
+  const quantity = document.getElementById("itemQuantity").value;
+
+  if (!name) return alert("Nome obrigatório");
+
+  await fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "addItem",
+      name,
+      category,
+      quantity: Number(quantity)
+    })
+  });
+
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemQuantity").value = "";
+
+  loadItems();
+  openTab("estoque");
+}
+
+async function loadItems() {
+  const res = await fetch(SCRIPT_URL + "?action=getItems");
+  const items = await res.json();
+
+  const tbody = document.querySelector("#itemsTable tbody");
+  tbody.innerHTML = "";
+
+  items.forEach(item => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${item.id}</td>
+      <td>${item.name}</td>
+      <td>${item.category}</td>
+      <td>${item.quantity}</td>
+      <td>
+        <button onclick="modifyQty('${item.id}', 1)">+1</button>
+        <button onclick="modifyQty('${item.id}', -1)">-1</button>
+        <button onclick="deleteItem('${item.id}')" style="background:#dc2626">Excluir</button>
+      </td>
     `;
+
+    tbody.appendChild(tr);
   });
 }
-renderEstoque();
 
-// ---------------- CONTROLE DE SELEÇÃO -------------------
-function toggleSelecionar(id) {
-  if (selecionados.includes(id)) {
-    selecionados = selecionados.filter(i => i !== id);
-  } else {
-    selecionados.push(id);
-  }
-  atualizarActionsBar();
-  renderUso();
+async function modifyQty(id, delta) {
+  await fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "modifyQty", id, delta })
+  });
+  loadItems();
 }
 
-function limparSelecao() {
-  selecionados = [];
-  atualizarActionsBar();
-  renderUso();
+async function deleteItem(id) {
+  if (!confirm("Excluir item?")) return;
+
+  await fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "deleteItem", id })
+  });
+
+  loadItems();
 }
 
-function atualizarActionsBar() {
-  let bar = document.getElementById("actionsBar");
-  let count = document.getElementById("countSelecionados");
-
-  if (selecionados.length > 0) {
-    bar.style.display = "block";
-    count.textContent = `${selecionados.length} selecionados`;
-  } else {
-    bar.style.display = "none";
-  }
+/* ================================
+   RESET GERAL
+================================ */
+function openResetModal() {
+  document.getElementById("modalReset").style.display = "flex";
 }
 
-// ---------------- MODAL DE PERMUTA -------------------
-function abrirModalPermuta(lote = false, tipoEstoque = null) {
-  permutaLote = lote;
-  window.tipoEstoque = tipoEstoque;
-
-  document.getElementById("modalPermuta").style.display = "flex";
-
-  if (lote) {
-    document.getElementById("infoPermuta").innerText =
-      `Você está permutando ${selecionados.length} extintor(es) em uso.`;
-  } else {
-    document.getElementById("infoPermuta").innerText =
-      `Permutar extintor com estoque (${tipoEstoque}).`;
-  }
+function closeResetModal() {
+  document.getElementById("modalReset").style.display = "none";
 }
 
-function fecharModal() {
-  document.getElementById("modalPermuta").style.display = "none";
+async function resetSystem() {
+  await fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "reset" })
+  });
+
+  closeResetModal();
+  loadItems();
+  loadCategories();
 }
 
-// ---------------- CONFIRMAÇÃO DA PERMUTA -------------------
-function confirmarPermuta() {
-  fecharModal();
-
-  let categoria = document.getElementById("categoriaReposicao").value;
-
-  if (permutaLote) {
-    // -------- PERMUTA EM LOTE (em uso → estoque) --------
-    selecionados.forEach(id => {
-      let ext = emUso.find(e => e.id === id);
-      if (!ext) return;
-
-      estoque[ext.tipo].operacional--;     // tira do estoque
-      estoque[ext.tipo].naooperacional++;  // devolve como avariado
-      ext.status = "Operacional";          // substituído
-    });
-
-  } else {
-    // -------- PERMUTA INDIVIDUAL DIRETO NO CARD DO ESTOQUE --------
-    if (!estoque[window.tipoEstoque]) return;
-
-    estoque[window.tipoEstoque].operacional--;
-    estoque[window.tipoEstoque].naooperacional++;
-  }
-
-  selecionados = [];
-  atualizarActionsBar();
-  renderUso();
-  renderEstoque();
-}
-
+/* ================================
+   INICIALIZAÇÃO
+================================ */
+loadCategories();
+loadItems();
 </script>
 
 </body>
