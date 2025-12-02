@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Controle de Extintores — Painel</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#06b6d4; --good:#10b981; --danger:#f97373;
+    --glass: rgba(255,255,255,0.03);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  body{margin:0;background:linear-gradient(180deg,#061021 0%, #071428 100%);color:#e6eef6;}
+  .wrap{max-width:1200px;margin:28px auto;padding:20px;}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  .top-actions{margin-left:auto;display:flex;gap:8px}
+  button{background:var(--accent);border:0;padding:8px 12px;border-radius:8px;color:#012;cursor:pointer;font-weight:600}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:500}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+  /* left */
+  .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+  .dashboard-cards{display:flex;gap:12px;flex-wrap:wrap}
+  .card{background:var(--glass);padding:12px;border-radius:10px;min-width:160px}
+  .card h3{margin:0;font-size:12px;color:var(--muted)}
+  .card p{margin:6px 0 0;font-size:20px;font-weight:700}
+  /* estoque grid */
+  .estoque-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+  .estoque-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px}
+  .estoque-card h4{margin:0 0 8px;font-size:14px}
+  .counters{display:flex;gap:8px;flex-wrap:wrap}
+  .counter{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+  .counter.bad{border-color:var(--danger);color:var(--danger)}
+  .counter.good{border-color:var(--good);color:var(--good)}
+  .counter.info{color:var(--muted)}
+  /* right column */
+  .side{display:flex;flex-direction:column;gap:12px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;margin-top:12px;color:var(--muted);font-size:13px}
+  th,td{padding:8px 6px;border-bottom:1px dashed rgba(255,255,255,0.02);text-align:left}
+  th{font-size:12px;color:var(--muted);font-weight:600}
+  tr:hover td{background:rgba(255,255,255,0.01)}
+  .small{font-size:12px;color:var(--muted)}
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(1,6,12,0.6);z-index:40;backdrop-filter:blur(4px)}
+  .modal .box{background:#061224;padding:16px;border-radius:10px;min-width:320px;max-width:720px}
+  label{display:block;margin-top:10px;font-size:13px;color:var(--muted)}
+  input[type=text], input[type=date], select, textarea, input[type=number]{
+    width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted)
+  }
+  .row{display:flex;gap:8px}
+  .muted{color:var(--muted);font-size:13px}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+  .badge{background:rgba(255,255,255,0.02);padding:4px 8px;border-radius:8px;font-weight:600}
+  @media (max-width:980px){.grid{grid-template-columns:1fr;}.panel{order:2}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Controle de Extintores</h1>
+    <div class="top-actions">
+      <button id="btnNovo">+ Cadastrar</button>
+      <button class="ghost" id="btnConfig">Configurações</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h2 style="margin:0 0 10px">Dashboard</h2>
+        <div class="dashboard-cards" id="dashboardCards">
+          <!-- cards gerados -->
+        </div>
+
+        <h3 style="margin-top:14px;color:var(--muted)">Estoque por Tipo/Kg</h3>
+        <div class="estoque-grid" id="estoqueGrid">
+          <!-- estoque cards -->
+        </div>
+
+        <h3 style="margin-top:14px;color:var(--muted)">Extintores em Uso</h3>
+        <div class="controls">
+          <button class="ghost" id="btnToggleSelect">Selecionar múltiplos</button>
+          <button id="btnBatchAction" class="ghost">Ação em lote</button>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <table id="tableEmUso">
+            <thead>
+              <tr><th><input type="checkbox" id="masterCheckbox" /></th><th>ID</th><th>Tipo/Kg</th><th>Local</th><th>Status</th><th>Última inspeção</th><th></th></tr>
+            </thead>
+            <tbody>
+              <!-- linhas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="panel">
+        <h3 style="margin:0">Ações rápidas</h3>
+        <div style="margin-top:8px" class="small muted">Use os botões abaixo para operações rápidas no estoque</div>
+        <div style="margin-top:12px" id="quickActions">
+          <!-- quick actions -->
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0">Filtros</h3>
+        <div style="margin-top:8px" class="small muted">Filtrar tabela Em Uso</div>
+        <div style="margin-top:10px">
+          <select id="filterTipo">
+            <option value="">— Todos os Tipos —</option>
+          </select>
+          <select id="filterStatus" style="margin-top:8px">
+            <option value="">— Todos os Status —</option>
+            <option>Operacional</option>
+            <option>Não Operacional</option>
+            <option>Em Manutenção</option>
+            <option>Emprestado</option>
+          </select>
+          <button class="ghost" id="btnApplyFilter" style="margin-top:8px">Aplicar</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    Sistema demo — substitua as funções `api.*` pelos endpoints do Apps Script. <span class="muted">Prototipado para controle por Tipo/Kg no estoque e por extintor em uso</span>
+  </footer>
+</div>
+
+<!-- Modais -->
+<div id="modalRoot" style="display:none"></div>
+
+<script>
+/*
+  index.html - Frontend demo para controle de extintores
+  - Usa localStorage como backend mock para testar
+  - Para integrar ao Apps Script substitua os métodos em `api` por fetch() reais.
+  - Estruturas esperadas:
+    Estoque: [{ tipoKg: 'ABC 6Kg', operacional: 8, naoOperacional:1, manutencao:0, emprestados:0 }]
+    EmUso: [{ id: 'U-001', tipoKg:'ABC 6Kg', local:'Torre A - Sala 1', status:'Operacional', ultimaInspecao:'2025-09-10' }]
+    Config: { cadastro: [ {field:'tipoKg', label:'Tipo/Kg', type:'select', options:['BC 4Kg','ABC 6Kg'], required:true, active:true}, ... ], inspeccao: [...] }
+*/
+
+const API_URL = 'APPS_SCRIPT_API_URL_HERE'; // placeholder when for real integration
+
+/* -------------------------
+   Mock API (localStorage) - usado para demo
+   Substitua essas funções com chamadas reais ao Apps Script
+   ------------------------- */
+const storageKey = 'demo_extintores_v1';
+
+function seedDemoIfEmpty(){
+  if(localStorage.getItem(storageKey)) return;
+  const demo = {
+    estoque: [
+      { tipoKg:'BC 4Kg', operacional:12, naoOperacional:2, manutencao:1, emprestados:0 },
+      { tipoKg:'ABC 6Kg', operacional:8, naoOperacional:0, manutencao:3, emprestados:1 },
+      { tipoKg:'CO2 6Kg', operacional:5, naoOperacional:1, manutencao:0, emprestados:0 }
+    ],
+    emUso: [
+      { id:'U-0001', tipoKg:'BC 4Kg', local:'Terminal 1 - Sala 02', status:'Operacional', ultimaInspecao:'2025-10-12' },
+      { id:'U-0002', tipoKg:'ABC 6Kg', local:'Edifício B - Entrada', status:'Não Operacional', ultimaInspecao:'2025-08-10' },
+      { id:'U-0003', tipoKg:'CO2 6Kg', local:'Hangar 3', status:'Operacional', ultimaInspecao:'2025-10-02' }
+    ],
+    config: {
+      cadastro: [
+        { field:'tipoKg', label:'Tipo / Kg', type:'select', options:['BC 4Kg','ABC 6Kg','CO2 6Kg'], required:true, active:true },
+        { field:'numeroSerie', label:'Nº Série', type:'text', options:[], required:false, active:true },
+        { field:'local', label:'Local', type:'text', options:[], required:true, active:true },
+        { field:'dataValidade', label:'Data de Validade', type:'date', options:[], required:true, active:true }
+      ],
+      inspeccao: [
+        { field:'pressaoOK', label:'Pressão OK?', type:'checkbox', options:[], required:false, active:true },
+        { field:'lacreOK', label:'Lacre OK?', type:'checkbox', options:[], required:false, active:true },
+        { field:'observacoes', label:'Observações', type:'textarea', options:[], required:false, active:true }
+      ],
+      estoqueCategorias: ['operacional','naoOperacional','manutencao','emprestados']
+    }
+  };
+  localStorage.setItem(storageKey, JSON.stringify(demo));
+}
+
+function readStore(){ return JSON.parse(localStorage.getItem(storageKey)); }
+function writeStore(data){ localStorage.setItem(storageKey, JSON.stringify(data)); }
+
+/* API shim */
+const api = {
+  async getConfig(){
+    const d = readStore(); return d.config;
+  },
+  async getEstoque(){
+    const d = readStore(); return d.estoque;
+  },
+  async getEmUso(){
+    const d = readStore(); return d.emUso;
+  },
+  async saveEmUso(record){
+    const d = readStore();
+    // if id exists -> update, else create new id
+    if(record.id){
+      const idx = d.emUso.findIndex(x=>x.id===record.id);
+      if(idx>=0) d.emUso[idx] = Object.assign(d.emUso[idx], record);
+    } else {
+      // create new id
+      const next = (d.emUso.length + 1).toString().padStart(4,'0');
+      record.id = 'U-' + next;
+      d.emUso.push(record);
+      // If new extintor came from estoque, automatically decrement estoque operacional if status is Operacional
+    }
+    writeStore(d); return record;
+  },
+  async saveEstoqueUpdate(tipoKg, changes /* {operacional:+n, naoOperacional:-n,...} */){
+    const d = readStore();
+    const s = d.estoque.find(x=>x.tipoKg===tipoKg);
+    if(!s) {
+      // create row if not exists
+      const obj = { tipoKg, operacional:0, naoOperacional:0, manutencao:0, emprestados:0 };
+      d.estoque.push(obj);
+    }
+    const row = d.estoque.find(x=>x.tipoKg===tipoKg);
+    Object.keys(changes).forEach(k=>{
+      row[k] = (row[k] || 0) + (parseInt(changes[k],10) || 0);
+      if(row[k]<0) row[k]=0;
+    });
+    writeStore(d);
+    return row;
+  },
+  async batchUpdateEmUso(ids, changes){
+    const d = readStore();
+    d.emUso = d.emUso.map(item=>{
+      if(ids.includes(item.id)){
+        return Object.assign({}, item, changes);
+      }
+      return item;
+    });
+    writeStore(d);
+    return true;
+  },
+  async createConfigField(formName, fieldDef){
+    const d = readStore();
+    d.config[formName].push(fieldDef);
+    writeStore(d); return d.config;
+  }
+};
+
+/* -------------------------
+   UI Logic
+   ------------------------- */
+
+seedDemoIfEmpty();
+
+const state = {
+  config: null,
+  estoque: [],
+  emUso: [],
+  selecting: false,
+  selectedIds: new Set(),
+  filters: { tipo:'', status:'' }
+};
+
+async function loadAll(){
+  state.config = await api.getConfig();
+  state.estoque = await api.getEstoque();
+  state.emUso = await api.getEmUso();
+  renderAll();
+}
+
+function renderAll(){
+  renderDashboard();
+  renderEstoque();
+  renderEmUsoTable();
+  renderFilters();
+  renderQuickActions();
+}
+
+function renderDashboard(){
+  const container = document.getElementById('dashboardCards');
+  const totalEmUso = state.emUso.length;
+  const totalEstoque = state.estoque.reduce((s,r)=>s + (r.operacional + r.naoOperacional + r.manutencao + r.emprestados),0);
+  const totalNaoOp = state.emUso.filter(x=>x.status==='Não Operacional').length + state.estoque.reduce((s,r)=>s + r.naoOperacional,0);
+  container.innerHTML = `
+    <div class="card"><h3>Total em uso</h3><p>${totalEmUso}</p></div>
+    <div class="card"><h3>Total no depósito</h3><p>${totalEstoque}</p></div>
+    <div class="card"><h3>Não operacionais (total)</h3><p>${totalNaoOp}</p></div>
+  `;
+}
+
+function renderEstoque(){
+  const grid = document.getElementById('estoqueGrid'); grid.innerHTML='';
+  state.estoque.forEach(row=>{
+    const total = (row.operacional||0) + (row.naoOperacional||0) + (row.manutencao||0) + (row.emprestados||0);
+    const el = document.createElement('div'); el.className='estoque-card';
+    el.innerHTML = `
+      <h4>${escapeHtml(row.tipoKg)}</h4>
+      <div class="counters">
+        <div class="counter good" data-tipo="${escapeHtml(row.tipoKg)}" data-col="operacional">Op: ${row.operacional||0}</div>
+        <div class="counter bad" data-tipo="${escapeHtml(row.tipoKg)}" data-col="naoOperacional">N.Op: ${row.naoOperacional||0}</div>
+        <div class="counter info" data-tipo="${escapeHtml(row.tipoKg)}" data-col="manutencao">Manut: ${row.manutencao||0}</div>
+        <div class="counter info" data-tipo="${escapeHtml(row.tipoKg)}" data-col="emprestados">Emp: ${row.emprestados||0}</div>
+        <div class="counter" style="font-weight:700">Tot: ${total}</div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+
+  // attach click handlers for counters
+  Array.from(document.querySelectorAll('.counter[data-tipo]')).forEach(btn=>{
+    btn.onclick = () => openMoveModal(btn.dataset.tipo, btn.dataset.col);
+  });
+}
+
+function renderEmUsoTable(){
+  const tbody = document.querySelector('#tableEmUso tbody');
+  tbody.innerHTML = '';
+  // apply filters
+  let list = state.emUso.slice();
+  if(state.filters.tipo) list = list.filter(x=>x.tipoKg===state.filters.tipo);
+  if(state.filters.status) list = list.filter(x=>x.status===state.filters.status);
+  list.forEach(item=>{
+    const tr = document.createElement('tr');
+    const selected = state.selectedIds.has(item.id);
+    tr.innerHTML = `
+      <td><input type="checkbox" class="row-checkbox" data-id="${item.id}" ${selected?'checked':''} ${!state.selecting?'style="display:none"':''}></td>
+      <td>${escapeHtml(item.id)}</td>
+      <td>${escapeHtml(item.tipoKg)}</td>
+      <td>${escapeHtml(item.local)}</td>
+      <td>${escapeHtml(item.status)}</td>
+      <td class="small">${escapeHtml(item.ultimaInspecao||'—')}</td>
+      <td><button class="ghost" data-id="${item.id}" data-action="edit">Editar</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // attach row checkbox listeners
+  document.querySelectorAll('.row-checkbox').forEach(cb=>{
+    cb.onchange = (e)=> {
+      const id = e.target.dataset.id;
+      if(e.target.checked) state.selectedIds.add(id); else state.selectedIds.delete(id);
+      // update master checkbox
+      const all = Array.from(document.querySelectorAll('.row-checkbox'));
+      const checked = all.filter(x=>x.checked).length;
+      document.getElementById('masterCheckbox').checked = checked === all.length && all.length>0;
+    };
+  });
+
+  // edit buttons
+  document.querySelectorAll('button[data-action="edit"]').forEach(b=>{
+    b.onclick = (e)=> openEditModal(b.dataset.id);
+  });
+}
+
+function renderFilters(){
+  const selTipo = document.getElementById('filterTipo');
+  selTipo.innerHTML = '<option value="">— Todos os Tipos —</option>';
+  const tipos = Array.from(new Set(state.estoque.map(s=>s.tipoKg).concat(state.emUso.map(e=>e.tipoKg))));
+  tipos.forEach(t=> {
+    const opt = document.createElement('option'); opt.value=t; opt.innerText=t; selTipo.appendChild(opt);
+  });
+}
+
+function renderQuickActions(){
+  const box = document.getElementById('quickActions'); box.innerHTML='';
+  state.estoque.forEach(r=>{
+    const btn = document.createElement('button'); btn.className='ghost'; btn.innerText = `Mover 1 ${r.tipoKg} → Emprestado`;
+    btn.onclick = async ()=> {
+      await api.saveEstoqueUpdate(r.tipoKg, { naoOperacional: -1, emprestados: 1 });
+      await loadAll();
+    };
+    box.appendChild(btn);
+  });
+}
+
+/* -------------------------
+   Modals and actions
+   ------------------------- */
+
+function openModal(htmlContent){
+  const root = document.getElementById('modalRoot');
+  root.style.display='block';
+  root.innerHTML = `<div class="modal"><div class="box">${htmlContent}</div></div>`;
+  // close on background click
+  root.querySelector('.modal').onclick = (e)=>{
+    if(e.target === root.querySelector('.modal')) closeModal();
+  };
+}
+function closeModal(){ document.getElementById('modalRoot').style.display='none'; document.getElementById('modalRoot').innerHTML=''; }
+
+function openMoveModal(tipoKg, coluna){
+  // coluna é a coluna clicada no estoque (operacional, naoOperacional, manutencao, emprestados)
+  const html = `
+    <h3>Mover unidades — ${escapeHtml(tipoKg)}</h3>
+    <div class="muted">Coluna: ${coluna}</div>
+    <label>Quantidade</label>
+    <input type="number" min="1" id="inputQtd" value="1" />
+    <label>Para</label>
+    <select id="selectDestino">
+      <option value="operacional">Operacional</option>
+      <option value="naoOperacional">Não Operacional</option>
+      <option value="manutencao">Em Manutenção</option>
+      <option value="emprestados">Emprestado</option>
+    </select>
+    <div style="margin-top:12px;text-align:right">
+      <button class="ghost" id="cancelMove">Cancelar</button>
+      <button id="confirmMove">Confirmar</button>
+    </div>
+  `;
+  openModal(html);
+  document.getElementById('cancelMove').onclick = closeModal;
+  document.getElementById('confirmMove').onclick = async ()=>{
+    const qtd = parseInt(document.getElementById('inputQtd').value||'1',10);
+    const destino = document.getElementById('selectDestino').value;
+    if(destino === coluna){ alert('Escolha um destino diferente.'); return; }
+    // decrement coluna, increment destino
+    const change = {};
+    change[coluna] = -qtd;
+    change[destino] = qtd;
+    await api.saveEstoqueUpdate(tipoKg, change);
+    await loadAll();
+    closeModal();
+  };
+}
+
+function openEditModal(id){
+  const item = state.emUso.find(x=>x.id===id);
+  if(!item) return alert('Item não encontrado');
+  // build form from config.cadastro
+  const cfg = state.config.cadastro;
+  let html = `<h3>Editar ${escapeHtml(id)}</h3><form id="formEdit">`;
+  cfg.forEach(f=>{
+    if(!f.active) return;
+    const val = item[f.field] || '';
+    html += `<label>${escapeHtml(f.label)}</label>`;
+    if(f.type==='text' || f.type==='date' || f.type==='number'){
+      html += `<input type="${f.type}" name="${f.field}" value="${escapeHtml(val)}" />`;
+    } else if(f.type==='select'){
+      html += `<select name="${f.field}">${f.options.map(o=>`<option ${o===val?'selected':''}>${escapeHtml(o)}</option>`).join('')}</select>`;
+    } else if(f.type==='textarea'){
+      html += `<textarea name="${f.field}">${escapeHtml(val)}</textarea>`;
+    } else if(f.type==='checkbox'){
+      html += `<input type="checkbox" name="${f.field}" ${val ? 'checked' : ''} />`;
+    } else {
+      html += `<input type="text" name="${f.field}" value="${escapeHtml(val)}" />`;
+    }
+  });
+  html += `<label>Status</label><select name="status">
+      <option ${item.status==='Operacional'?'selected':''}>Operacional</option>
+      <option ${item.status==='Não Operacional'?'selected':''}>Não Operacional</option>
+      <option ${item.status==='Em Manutenção'?'selected':''}>Em Manutenção</option>
+      <option ${item.status==='Emprestado'?'selected':''}>Emprestado</option>
+    </select>`;
+  html += `<div style="margin-top:12px;text-align:right"><button class="ghost" id="cancelEdit">Cancelar</button><button type="submit">Salvar</button></div></form>`;
+  openModal(html);
+  document.getElementById('cancelEdit').onclick = closeModal;
+  document.getElementById('formEdit').onsubmit = async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const payload = { id: item.id };
+    for(const [k,v] of fd.entries()){
+      // checkbox handling: absent when not checked — but we don't have checkboxes here (unless configured)
+      payload[k] = v;
+    }
+    await api.saveEmUso(payload);
+    await loadAll();
+    closeModal();
+  };
+}
+
+function openCadastroModal(){
+  const cfg = state.config.cadastro;
+  let html = `<h3>Novo Extintor</h3><form id="formNovo">`;
+  cfg.forEach(f=>{
+    if(!f.active) return;
+    html += `<label>${escapeHtml(f.label)}</label>`;
+    if(f.type==='text' || f.type==='date' || f.type==='number'){
+      html += `<input type="${f.type}" name="${f.field}" ${f.required ? 'required':''} />`;
+    } else if(f.type==='select'){
+      html += `<select name="${f.field}" ${f.required ? 'required':''}>${f.options.map(o=>`<option>${escapeHtml(o)}</option>`).join('')}</select>`;
+    } else if(f.type==='textarea'){
+      html += `<textarea name="${f.field}"></textarea>`;
+    } else if(f.type==='checkbox'){
+      html += `<input type="checkbox" name="${f.field}" />`;
+    } else {
+      html += `<input type="text" name="${f.field}" />`;
+    }
+  });
+  // choose destino inicial: deposito or uso
+  html += `<label>Destino inicial</label><select name="destinoInit"><option value="estoque">Depósito</option><option value="uso">Em Uso</option></select>`;
+  html += `<div style="margin-top:12px;text-align:right"><button class="ghost" id="cancelNovo">Cancelar</button><button type="submit">Cadastrar</button></div></form>`;
+  openModal(html);
+  document.getElementById('cancelNovo').onclick = closeModal;
+  document.getElementById('formNovo').onsubmit = async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = {};
+    for(const [k,v] of fd.entries()){
+      obj[k] = v;
+    }
+    // if destinoInit === 'uso' create emUso record, else increment estoque operacional
+    if(obj.destinoInit === 'uso'){
+      const record = { tipoKg: obj.tipoKg || '', local: obj.local || '', status: 'Operacional', ultimaInspecao: '' };
+      await api.saveEmUso(record);
+    } else {
+      // increment estoque operacional by 1 for that tipo
+      await api.saveEstoqueUpdate(obj.tipoKg, { operacional: 1 });
+    }
+    await loadAll();
+    closeModal();
+  };
+}
+
+function openConfigModal(){
+  const cfg = state.config;
+  let html = `<h3>Configurações de Formulários</h3>`;
+  html += `<div style="display:flex;gap:12px"><div style="flex:1"><h4>Cadastro</h4>`;
+  html += `<div id="cfgCadastroList">` + cfg.cadastro.map(f=>`<div class="small">${escapeHtml(f.label)} — ${escapeHtml(f.type)}</div>`).join('') + `</div>`;
+  html += `</div><div style="flex:1"><h4>Inspeção</h4><div id="cfgInspecaoList">` + cfg.inspeccao.map(f=>`<div class="small">${escapeHtml(f.label)} — ${escapeHtml(f.type)}</div>`).join('') + `</div></div></div>`;
+  html += `<hr/><h4>Adicionar novo campo ao formulário de cadastro</h4>`;
+  html += `<form id="formAddField"><label>Nome do campo (id)</label><input name="field" placeholder="ex: corDoExtintor" required /><label>Label</label><input name="label" required /><label>Tipo</label><select name="type"><option>text</option><option>number</option><option>date</option><option>select</option><option>textarea</option><option>checkbox</option></select><label>Opções (para select) — vírgula</label><input name="options" placeholder="ex: Vermelho,Amarelo" /><div style="margin-top:8px;text-align:right"><button class="ghost" type="button" id="cancelCfg">Cancelar</button><button type="submit">Adicionar Campo</button></div></form>`;
+  openModal(html);
+  document.getElementById('cancelCfg').onclick = closeModal;
+  document.getElementById('formAddField').onsubmit = async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const newField = {
+      field: fd.get('field'),
+      label: fd.get('label'),
+      type: fd.get('type'),
+      options: fd.get('options') ? fd.get('options').split(',').map(s=>s.trim()) : [],
+      required:false,
+      active:true
+    };
+    await api.createConfigField('cadastro', newField);
+    await loadAll();
+    closeModal();
+  };
+}
+
+/* -------------------------
+   Batch actions
+   ------------------------- */
+
+function toggleSelectionMode(){
+  state.selecting = !state.selecting;
+  state.selectedIds.clear();
+  document.getElementById('btnToggleSelect').innerText = state.selecting ? 'Sair modo seleção' : 'Selecionar múltiplos';
+  // show/hide checkboxes
+  document.querySelectorAll('.row-checkbox').forEach(cb=>{
+    cb.style.display = state.selecting ? 'inline-block' : 'none';
+    cb.checked = false;
+  });
+  document.getElementById('masterCheckbox').checked = false;
+}
+
+async function openBatchActionModal(){
+  if(!state.selecting || state.selectedIds.size===0) return alert('Ative modo seleção e marque ao menos 1 extintor.');
+  let html = `<h3>Ação em lote (${state.selectedIds.size})</h3>
+    <label>Ação</label>
+    <select id="batchAction">
+      <option value="setStatus">Alterar status</option>
+      <option value="permuta">Permutar com estoque</option>
+      <option value="setInspecao">Atualizar data de inspeção</option>
+    </select>
+    <div id="batchParams"></div>
+    <div style="margin-top:12px;text-align:right"><button class="ghost" id="cancelBatch">Cancelar</button><button id="confirmBatch">Confirmar</button></div>
+  `;
+  openModal(html);
+  document.getElementById('cancelBatch').onclick = closeModal;
+  const batchAction = document.getElementById('batchAction');
+  const params = document.getElementById('batchParams');
+  function updateParams(){
+    const v = batchAction.value; params.innerHTML = '';
+    if(v==='setStatus'){
+      params.innerHTML = `<label>Novo status</label><select id="batchStatus"><option>Operacional</option><option>Não Operacional</option><option>Em Manutenção</option><option>Emprestado</option></select>`;
+    } else if(v==='permuta'){
+      params.innerHTML = `<label>Tipo/Kg (estoque) para usar como substituto</label><select id="batchTipo">${state.estoque.map(e=>`<option>${escapeHtml(e.tipoKg)}</option>`).join('')}</select>`;
+    } else if(v==='setInspecao'){
+      params.innerHTML = `<label>Data da inspeção</label><input id="batchData" type="date" />`;
+    }
+  }
+  batchAction.onchange = updateParams; updateParams();
+
+  document.getElementById('confirmBatch').onclick = async ()=>{
+    const ids = Array.from(state.selectedIds);
+    if(batchAction.value==='setStatus'){
+      const newStatus = document.getElementById('batchStatus').value;
+      await api.batchUpdateEmUso(ids, { status: newStatus });
+    } else if(batchAction.value==='permuta'){
+      const tipo = document.getElementById('batchTipo').value;
+      // For each selected extintor, assume we replace by an operacional from estoque:
+      // decrement operacional and increment naoOperacional (returned)
+      await api.saveEstoqueUpdate(tipo, { operacional: -ids.length, naoOperacional: ids.length });
+      // update each emUso -> Operacional (or keep new status as needed)
+      await api.batchUpdateEmUso(ids, { status: 'Operacional' });
+    } else if(batchAction.value==='setInspecao'){
+      const dt = document.getElementById('batchData').value;
+      await api.batchUpdateEmUso(ids, { ultimaInspecao: dt });
+    }
+    await loadAll();
+    closeModal();
+    toggleSelectionMode();
+  };
+}
+
+/* -------------------------
+   Helpers & events
+   ------------------------- */
+
+function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+document.getElementById('btnNovo').onclick = openCadastroModal;
+document.getElementById('btnConfig').onclick = openConfigModal;
+document.getElementById('btnToggleSelect').onclick = toggleSelectionMode;
+document.getElementById('btnBatchAction').onclick = openBatchActionModal;
+document.getElementById('masterCheckbox').onchange = (e)=>{
+  const all = Array.from(document.querySelectorAll('.row-checkbox'));
+  all.forEach(cb=>{ cb.checked = e.target.checked; const ev = new Event('change'); cb.dispatchEvent(ev); });
+};
+document.getElementById('btnApplyFilter').onclick = () => {
+  state.filters.tipo = document.getElementById('filterTipo').value;
+  state.filters.status = document.getElementById('filterStatus').value;
+  renderEmUsoTable();
+};
+
+loadAll(); // initial
+
+</script>
+</body>
+</html>
