@@ -33,7 +33,7 @@ function buildPath(path) {
  */
 window.URL_CONFIG = {
     // URL base do repositório
-    BASE: BASE_URL,
+    BASE: /link-protegido,
 
     // Função para construir paths
     path: buildPath,
@@ -68,3 +68,4 @@ export default window.URL_CONFIG;
 
 // Log de confirmação
 console.log('✅ URL_CONFIG carregado:', window.URL_CONFIG.BASE);
+
