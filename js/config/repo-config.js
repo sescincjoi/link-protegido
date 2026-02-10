@@ -12,7 +12,7 @@
  */
 
 // ⚙️ CONFIGURAÇÃO PRINCIPAL - Altere apenas esta linha ao trocar de repositório
-const BASE_URL = '/Central-SCI';
+const BASE_URL = '/link-protegido';
 
 /**
  * Função auxiliar para construir caminhos completos
@@ -33,7 +33,7 @@ function buildPath(path) {
  */
 window.URL_CONFIG = {
     // URL base do repositório
-    BASE: /link-protegido,
+    BASE: BASE_URL,
 
     // Função para construir paths
     path: buildPath,
