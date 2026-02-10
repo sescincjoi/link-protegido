@@ -164,7 +164,7 @@ class AuthGuard {
           </div>
           <!-- Botões Dashboard Admin -->
           <a href="${window.URL_CONFIG.ADMIN_USUARIOS}" class="auth-menu-item" id="auth-menu-admin" style="display: none;">
-              <i data-lucide="users-cog"></i>
+              <i data-lucide="shield"></i>
               <span>Gerenciar Usuários</span>
           </a>
           <a href="${window.URL_CONFIG.ADMIN_CONFIG_BASES}" class="auth-menu-item" id="auth-menu-bases" style="display: none;">
