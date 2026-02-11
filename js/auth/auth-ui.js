@@ -28,6 +28,10 @@ class AuthUI {
         } else {
           this.showNotification(`Bem-vindo(a), ${user.displayName}!`, 'success');
         }
+        // Tentar criar seletor com logs de debug
+        console.log('👤 Login detectado, tentando criar seletor de base...');
+        setTimeout(() => this.createBaseSelector(), 500);
+        setTimeout(() => this.createBaseSelector(), 2000); // Retry segurança
       }
     });
   }
