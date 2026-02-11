@@ -237,6 +237,10 @@ class AuthUI {
     window.addEventListener('base-changed', () => {
       this.updateBaseSelector();
     });
+    // Inicializar EndpointsManager caso ainda não esteja
+    if (endpointsManager && !endpointsManager.initialized) {
+      endpointsManager.init().then(() => this.createBaseSelector());
+    }
   }
   /**
    * CRIAR SELETOR DE BASE (SUPER ADMIN)
@@ -254,17 +258,17 @@ class AuthUI {
       console.log('❌ Usuário não é super admin, abortando seletor');
       return;
     }
-    if (!window.endpointsManager) {
-      console.warn('⚠️ endpointsManager não encontrado');
+    if (!endpointsManager) {
+      console.warn('⚠️ endpointsManager não encontrado (import falhou)');
       return;
     }
-    const bases = window.endpointsManager.listarBases();
+    const bases = endpointsManager.listarBases();
     console.log('📍 Bases encontradas:', bases.length);
     if (bases.length <= 1) {
       console.log('ℹ️ Apenas 1 ou 0 bases, não precisa de seletor');
       return;
     }
-    const baseAtual = window.endpointsManager.getBaseAtual();
+    const baseAtual = endpointsManager.getBaseAtual();
     const selectorHTML = `
         <div id="base-selector-container" class="base-selector-container">
             <div class="base-selector-label">Base Ativa:</div>
@@ -290,7 +294,7 @@ class AuthUI {
     // Adicionar listener
     document.getElementById('base-selector').addEventListener('change', (e) => {
       const novaBase = e.target.value;
-      if (window.endpointsManager.setBase(novaBase)) {
+      if (endpointsManager.setBase(novaBase)) {
         this.showNotification(`Base alterada para ${novaBase}`, 'success');
         setTimeout(() => window.location.reload(), 1000); // Recarregar para aplicar
       }
