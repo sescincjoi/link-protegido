@@ -1,21 +1,19 @@
-const CACHE_NAME = 'central-sci-v5';
+const CACHE_NAME = 'central-sci-v7';
 const FILES_TO_CACHE = [
-  './',
   './index.html',
   './pwa/manifest.json',
   './pwa/app.js',
   './pwa/lucide.min.js',
   './pwa/icons/icon-192.png',
-  './pwa/icons/icon-256.png'
+  './pwa/icons/icon-256.png',
+  './tools/relatorios/oc_n_aero.html'
 ];
-
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
 });
-
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -30,7 +28,6 @@ self.addEventListener('activate', event => {
     }).then(() => self.clients.claim())
   );
 });
-
 self.addEventListener('fetch', event => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -38,7 +35,6 @@ self.addEventListener('fetch', event => {
     );
     return;
   }
-
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
