@@ -8,25 +8,20 @@
  * - Feedback visual de erros e sucessos
  * - Integração com auth-core.js
  */
-
 import authCore from './auth-core.js';
 import { CONFIG } from './firebase-config.js';
-
 class AuthUI {
   constructor() {
     this.modal = null;
     this.currentView = 'login'; // 'login', 'cadastro', 'recuperar'
     this.isOpen = false;
     this.isCadastreFlow = false;
-    
     // Criar modal ao inicializar
     this.createModal();
-    
     // Escutar mudanças de autenticação
     authCore.addAuthListener((event, user) => {
       if (event === 'login') {
         this.closeModal();
-    
         if (this.isCadastreFlow) {
           this.showNotification(`Cadastro realizado com sucesso! Bem-vindo(a), ${user.displayName}!`, 'success');
           this.isCadastreFlow = false;
@@ -36,7 +31,6 @@ class AuthUI {
       }
     });
   }
-
   /**
    * CRIAR ESTRUTURA DO MODAL
    */
@@ -221,20 +215,74 @@ class AuthUI {
         </div>
       </div>
     `;
-    
     // Inserir no body
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
     // Guardar referência
     this.modal = document.getElementById('auth-modal');
-    
     // Adicionar event listeners
     this.attachEventListeners();
-    
     // Adicionar CSS
     this.injectStyles();
+    // Escutar evento de Bases carregadas
+    window.addEventListener('bases-config-loaded', () => {
+      this.createBaseSelector();
+    });
+    // Escutar mudança de base
+    window.addEventListener('base-changed', () => {
+      this.updateBaseSelector();
+    });
   }
-
+  /**
+   * CRIAR SELETOR DE BASE (SUPER ADMIN)
+   */
+  createBaseSelector() {
+    // Remover seletor anterior se existir
+    const oldSelector = document.getElementById('base-selector-container');
+    if (oldSelector) oldSelector.remove();
+    // Verificar permissão
+    if (!authCore.isSuperAdmin() && !authCore.currentUser) return;
+    if (authCore.currentUser && !authCore.isSuperAdmin()) return;
+    const bases = window.endpointsManager.listarBases();
+    if (bases.length <= 1) return; // Não mostrar se só tiver uma base
+    const baseAtual = window.endpointsManager.getBaseAtual();
+    const selectorHTML = `
+        <div id="base-selector-container" class="base-selector-container">
+            <div class="base-selector-label">Base Ativa:</div>
+            <select id="base-selector" class="base-selector-select">
+                ${bases.map(base => `
+                    <option value="${base.id}" ${base.id === baseAtual ? 'selected' : ''}>
+                        ${base.nome} (${base.icao})
+                    </option>
+                `).join('')}
+            </select>
+        </div>
+      `;
+    // Inserir no topo da página ou dentro do menu do usuário
+    // Vamos tentar inserir no menu do usuário se ele existir, senão no body fixo
+    const userMenu = document.getElementById('auth-user-menu');
+    if (userMenu) {
+      userMenu.insertAdjacentHTML('afterbegin', selectorHTML);
+    } else {
+      // Fallback - inserir no canto inferior direito
+      document.body.insertAdjacentHTML('beforeend', selectorHTML);
+      document.getElementById('base-selector-container').classList.add('floating');
+    }
+    // Adicionar listener
+    document.getElementById('base-selector').addEventListener('change', (e) => {
+      const novaBase = e.target.value;
+      if (window.endpointsManager.setBase(novaBase)) {
+        this.showNotification(`Base alterada para ${novaBase}`, 'success');
+        setTimeout(() => window.location.reload(), 1000); // Recarregar para aplicar
+      }
+    });
+  }
+  /**
+   * ATUALIZAR SELETOR
+   */
+  updateBaseSelector() {
+    // Re-criar para garantir estado atualizado
+    this.createBaseSelector();
+  }
   /**
    * ANEXAR EVENT LISTENERS
    */
@@ -243,34 +291,28 @@ class AuthUI {
     document.getElementById('auth-modal-close').addEventListener('click', () => {
       this.closeModal();
     });
-    
     document.getElementById('auth-modal-overlay').addEventListener('click', () => {
       this.closeModal();
     });
-    
     // ESC para fechar
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isOpen) {
         this.closeModal();
       }
     });
-    
     // Links de alternância
     document.getElementById('link-recuperar').addEventListener('click', (e) => {
       e.preventDefault();
       this.switchView('recuperar');
     });
-    
     document.getElementById('link-login-from-cadastro').addEventListener('click', (e) => {
       e.preventDefault();
       this.switchView('login');
     });
-    
     document.getElementById('link-login-from-recuperar').addEventListener('click', (e) => {
       e.preventDefault();
       this.switchView('login');
     });
-    
     document.getElementById('footer-switch-link').addEventListener('click', (e) => {
       e.preventDefault();
       if (this.currentView === 'login') {
@@ -279,25 +321,21 @@ class AuthUI {
         this.switchView('login');
       }
     });
-    
     // Formulário de login
     document.getElementById('auth-form-login').addEventListener('submit', async (e) => {
       e.preventDefault();
       await this.handleLogin(e);
     });
-    
     // Formulário de cadastro
     document.getElementById('auth-form-cadastro').addEventListener('submit', async (e) => {
       e.preventDefault();
       await this.handleCadastro(e);
     });
-    
     // Formulário de recuperação
     document.getElementById('auth-form-recuperar').addEventListener('submit', async (e) => {
       e.preventDefault();
       await this.handleRecuperar(e);
     });
-    
     // Auto-uppercase para matrícula
     ['login-matricula', 'cadastro-matricula', 'recuperar-matricula'].forEach(id => {
       const input = document.getElementById(id);
@@ -306,39 +344,32 @@ class AuthUI {
       });
     });
   }
-
   /**
    * ALTERNAR ENTRE VIEWS (login/cadastro/recuperar)
    */
   switchView(view) {
     this.currentView = view;
-    
     // Esconder todos os formulários
     document.getElementById('auth-form-login').style.display = 'none';
     document.getElementById('auth-form-cadastro').style.display = 'none';
     document.getElementById('auth-form-recuperar').style.display = 'none';
-    
     // Limpar mensagens
     this.hideMessage();
-    
     // Resetar formulários
     document.getElementById('auth-form-login').reset();
     document.getElementById('auth-form-cadastro').reset();
     document.getElementById('auth-form-recuperar').reset();
-    
     // Mostrar formulário correto
     if (view === 'login') {
       document.getElementById('auth-modal-title').textContent = 'Login';
       document.getElementById('auth-form-login').style.display = 'block';
       document.getElementById('footer-switch-text').textContent = 'Não tem cadastro?';
       document.getElementById('footer-switch-link').textContent = 'Cadastre-se';
-      
     } else if (view === 'cadastro') {
       document.getElementById('auth-modal-title').textContent = 'Cadastro';
       document.getElementById('auth-form-cadastro').style.display = 'block';
       document.getElementById('footer-switch-text').textContent = 'Já tem cadastro?';
       document.getElementById('footer-switch-link').textContent = 'Fazer login';
-      
     } else if (view === 'recuperar') {
       document.getElementById('auth-modal-title').textContent = 'Recuperar Senha';
       document.getElementById('auth-form-recuperar').style.display = 'block';
@@ -346,7 +377,6 @@ class AuthUI {
       document.getElementById('footer-switch-link').textContent = '';
     }
   }
-
   /**
    * HANDLE LOGIN
    */
@@ -354,26 +384,21 @@ class AuthUI {
     const btn = document.getElementById('login-btn');
     const matricula = document.getElementById('login-matricula').value;
     const senha = document.getElementById('login-senha').value;
-    
     try {
       this.setLoading(btn, true);
       this.hideMessage();
-      
       await authCore.login(matricula, senha);
-      
       // Sucesso - o listener já vai fechar o modal
-      
     } catch (error) {
       this.showError(error.message);
     } finally {
       this.setLoading(btn, false);
     }
   }
-
   /**
    * HANDLE CADASTRO
    */
- async handleCadastro(e) {
+  async handleCadastro(e) {
     const btn = document.getElementById('cadastro-btn');
     const matricula = document.getElementById('cadastro-matricula').value;
     const nome = document.getElementById('cadastro-nome').value;
@@ -381,22 +406,16 @@ class AuthUI {
     const email = document.getElementById('cadastro-email').value;
     const senha = document.getElementById('cadastro-senha').value;
     const confirmar = document.getElementById('cadastro-confirmar').value;
-    
     try {
       this.setLoading(btn, true);
       this.hideMessage();
       this.isCadastreFlow = true;  // marca que é fluxo de cadastro
-      
       const result = await authCore.cadastrar(matricula, senha, confirmar, email, nome, nomeBA);
-      
       // Mostrar mensagem de sucesso
       this.showSuccess(result.message);
-      
       // Aguardar 1 segundo para usuário ver a mensagem
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Modal vai fechar automaticamente quando o authCore.onAuthStateChanged detectar o login
-      
     } catch (error) {
       this.isCadastreFlow = false;
       this.showError(error.message);
@@ -404,34 +423,27 @@ class AuthUI {
       this.setLoading(btn, false);
     }
   }
-
   /**
    * HANDLE RECUPERAR SENHA
    */
   async handleRecuperar(e) {
     const btn = document.getElementById('recuperar-btn');
     const matricula = document.getElementById('recuperar-matricula').value;
-    
     try {
       this.setLoading(btn, true);
       this.hideMessage();
-      
       const result = await authCore.recuperarSenha(matricula);
-      
       this.showSuccess(result.message);
-      
       // Voltar ao login após 3 segundos
       setTimeout(() => {
         this.switchView('login');
       }, 3000);
-      
     } catch (error) {
       this.showError(error.message);
     } finally {
       this.setLoading(btn, false);
     }
   }
-
   /**
    * MOSTRAR MENSAGEM DE ERRO
    */
@@ -441,7 +453,6 @@ class AuthUI {
     messageEl.textContent = message;
     messageEl.style.display = 'block';
   }
-
   /**
    * MOSTRAR MENSAGEM DE SUCESSO
    */
@@ -451,7 +462,6 @@ class AuthUI {
     messageEl.textContent = message;
     messageEl.style.display = 'block';
   }
-
   /**
    * ESCONDER MENSAGEM
    */
@@ -459,7 +469,6 @@ class AuthUI {
     const messageEl = document.getElementById('auth-message');
     messageEl.style.display = 'none';
   }
-
   /**
    * SETAR LOADING NO BOTÃO
    */
@@ -475,7 +484,6 @@ class AuthUI {
       button.classList.remove('auth-btn-loading');
     }
   }
-
   /**
    * ABRIR MODAL
    */
@@ -484,14 +492,12 @@ class AuthUI {
     this.modal.style.display = 'flex';
     this.isOpen = true;
     document.body.style.overflow = 'hidden'; // Prevenir scroll do body
-    
     // Focar no primeiro input
     setTimeout(() => {
       const firstInput = this.modal.querySelector('input:not([type="hidden"])');
       if (firstInput) firstInput.focus();
     }, 100);
   }
-
   /**
    * FECHAR MODAL
    */
@@ -499,23 +505,19 @@ class AuthUI {
     this.modal.style.display = 'none';
     this.isOpen = false;
     document.body.style.overflow = ''; // Restaurar scroll
-    
     // Limpar formulários
     document.getElementById('auth-form-login').reset();
     document.getElementById('auth-form-cadastro').reset();
     document.getElementById('auth-form-recuperar').reset();
     this.hideMessage();
   }
-
   /**
    * INJETAR ESTILOS CSS
    */
   injectStyles() {
     const styleId = 'auth-ui-styles';
-    
     // Evitar duplicação
     if (document.getElementById(styleId)) return;
-    
     const style = document.createElement('style');
     style.id = styleId;
     style.textContent = `
@@ -766,11 +768,41 @@ class AuthUI {
           padding-right: 16px;
         }
       }
+      /* SELETOR DE BASE */
+      .base-selector-container {
+          padding: 12px 16px;
+          border-bottom: 1px solid #e5e7eb;
+          background: #f9fafb;
+      }
+      .base-selector-container.floating {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          z-index: 9999;
+      }
+      .base-selector-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: #6b7280;
+          margin-bottom: 4px;
+      }
+      .base-selector-select {
+          width: 100%;
+          padding: 6px 10px;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          font-size: 13px;
+          background: white;
+          color: #1f2937;
+      }
     `;
-    
     document.head.appendChild(style);
   }
-
   /**
    * MOSTRAR NOTIFICAÇÃO TOAST
    */
@@ -784,20 +816,16 @@ class AuthUI {
         <span>${message}</span>
       </div>
     `;
-    
     // Adicionar ao body
     document.body.appendChild(notification);
-    
     // Recriar ícones
     if (window.lucide) {
       lucide.createIcons();
     }
-    
     // Animar entrada
     setTimeout(() => {
       notification.classList.add('show');
     }, 10);
-    
     // Remover após 4 segundos
     setTimeout(() => {
       notification.classList.remove('show');
@@ -806,16 +834,11 @@ class AuthUI {
       }, 300);
     }, 4000);
   }
-  
 }
-
 // Criar instância global
 const authUI = new AuthUI();
-
 // Exportar
 export default authUI;
-
 // Também disponibilizar globalmente
 window.authUI = authUI;
-
 console.log('✅ AuthUI inicializado');
