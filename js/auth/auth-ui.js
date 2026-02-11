@@ -10,6 +10,7 @@
  */
 import authCore from './auth-core.js';
 import { CONFIG } from './firebase-config.js';
+console.log('🚀 AuthUI Carregado - Versão Debug 2.0');
 class AuthUI {
   constructor() {
     this.modal = null;
