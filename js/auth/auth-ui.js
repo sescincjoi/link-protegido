@@ -236,14 +236,28 @@ class AuthUI {
    * CRIAR SELETOR DE BASE (SUPER ADMIN)
    */
   createBaseSelector() {
+    console.log('🔧 createBaseSelector chamado');
     // Remover seletor anterior se existir
     const oldSelector = document.getElementById('base-selector-container');
     if (oldSelector) oldSelector.remove();
     // Verificar permissão
-    if (!authCore.isSuperAdmin() && !authCore.currentUser) return;
-    if (authCore.currentUser && !authCore.isSuperAdmin()) return;
+    const isSuper = authCore.isSuperAdmin();
+    console.log('👤 Usuário é super admin?', isSuper, authCore.currentUser);
+    if (!isSuper && !authCore.currentUser) return;
+    if (authCore.currentUser && !isSuper) {
+      console.log('❌ Usuário não é super admin, abortando seletor');
+      return;
+    }
+    if (!window.endpointsManager) {
+      console.warn('⚠️ endpointsManager não encontrado');
+      return;
+    }
     const bases = window.endpointsManager.listarBases();
-    if (bases.length <= 1) return; // Não mostrar se só tiver uma base
+    console.log('📍 Bases encontradas:', bases.length);
+    if (bases.length <= 1) {
+      console.log('ℹ️ Apenas 1 ou 0 bases, não precisa de seletor');
+      return;
+    }
     const baseAtual = window.endpointsManager.getBaseAtual();
     const selectorHTML = `
         <div id="base-selector-container" class="base-selector-container">
