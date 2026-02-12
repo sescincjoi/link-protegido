@@ -975,25 +975,36 @@
     <div class="toast" id="toast"></div>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            try {
+        
+                if (!window.endpointsManager) {
+                    throw new Error('EndpointsManager não carregado.');
+                }
+        
+                // Garantir inicialização
+                if (window.endpointsManager.ready) {
+                    await window.endpointsManager.ready;
+                }
+        
+                const endpoint = window.endpointsManager.getEndpoint('RELATORIOS_SCRIPT');
+        
+                if (!endpoint) {
+                    console.error('Base atual:', window.endpointsManager.getBaseAtual());
+                    throw new Error('Endpoint RELATORIOS_SCRIPT não encontrado.');
+                }
+        
+                window.WEB_APP_URL = endpoint; // 🔥 IMPORTANTE: tornar global
+        
+                console.log('🔗 Endpoint carregado:', window.WEB_APP_URL);
+        
+                await carregarConfiguracoes();
+        
+            } catch (erro) {
+                console.error('Erro ao carregar configurações:', erro);
+                alert('Erro ao carregar configurações.');
+            }
+        });
 
-        if (!window.endpointsManager) {
-            throw new Error('❌ endpointsManager não encontrado.');
-        }
-    
-        await window.endpointsManager.ready;
-    
-        const endpoint = window.endpointsManager.getEndpoint('RELATORIOS_SCRIPT');
-    
-        if (!endpoint) {
-            throw new Error('❌ Endpoint RELATORIOS_SCRIPT não encontrado para a base atual.');
-        }
-    
-        WEB_APP_URL = endpoint;
-    
-        console.log('🔗 Endpoint carregado:', WEB_APP_URL);
-    
-        carregarConfiguracoes();
-    });
 
         let configData = null;
         let proximoNumero = null;
