@@ -43,21 +43,24 @@ class EndpointsManager {
     // Caso contrário, tentar carregar do localStorage
     const baseSalva = localStorage.getItem('sci-base-selecionada');
     
-    if (baseSalva && basesConfig.baseExiste(baseSalva) && basesConfig.baseAtiva(baseSalva)) {
+    if (baseSalva) {
+    
+      if (!basesConfig.baseExiste(baseSalva)) {
+        throw new Error(`❌ Base "${baseSalva}" não existe no sistema.`);
+      }
+    
+      if (!basesConfig.baseAtiva(baseSalva)) {
+        throw new Error(`❌ Base "${baseSalva}" está desativada.`);
+      }
+    
       this.baseAtual = baseSalva;
       console.log(`📍 Base carregada do localStorage: ${baseSalva}`);
+    
     } else {
-      // Usar primeira base ativa disponível
-      const basesAtivas = basesConfig.getBasesAtivas();
-      const primeiraBase = Object.keys(basesAtivas)[0];
-      
-      if (primeiraBase) {
-        this.baseAtual = primeiraBase;
-        console.log(`📍 Usando primeira base disponível: ${primeiraBase}`);
-      } else {
-        console.error('❌ Nenhuma base ativa disponível!');
-        this.baseAtual = null;
-      }
+    
+      console.warn('⚠ Nenhuma base selecionada no localStorage.');
+      this.baseAtual = null;
+    
     }
 
     this.initialized = true;
