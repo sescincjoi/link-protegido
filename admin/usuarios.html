@@ -1426,7 +1426,7 @@
         // Inicializar
         window.addEventListener('load', () => {
             // Verificar se é super-admin
-            authCore.addAuthListener((event, user) => {
+            window.authCore.addAuthListener((event, user) => {
                 if (event === 'login') {
                     if (user.role !== 'super-admin') {
                         showNotification('Acesso negado. Apenas Super administradores.', 'error');
@@ -1440,7 +1440,7 @@
             });
 
             // Se já estiver logado
-            if (authCore.isAuthenticated()) {
+            if (window.authCore && window.authCore.isAuthenticated()) {
                 if (!authCore.isSuperAdmin()) {
                     alert('Acesso negado. Apenas super administradores podem acessar esta página.');
                     window.location.href = window.URL_CONFIG.INDEX;
