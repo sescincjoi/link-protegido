@@ -974,25 +974,27 @@
     </div>
     <div class="toast" id="toast"></div>
     <script>
-        // CONFIGURAÇÃO DE ENDPOINT DINÂMICO
-        // A função getEndpoint será chamada quando o DOM estiver pronto
-        let WEB_APP_URL = '';
-        document.addEventListener('DOMContentLoaded', () => {
-            // Tenta pegar do gerenciador, fallback para valor padrão se falhar
-            try {
-                if (window.endpointsManager) {
-                    // Usaremos 'RELATORIOS_SCRIPT' ou criaremos um específico se necessário
-                    WEB_APP_URL = window.endpointsManager.getEndpoint('RELATORIOS_SCRIPT') || 'https://script.google.com/macros/s/AKfycbyal0depSGSESznpVqxnv6FnwOsv2CZXWTdEtU59GB1eC359G3chsgNBnE8ywiXEJXgKw/exec';
-                    console.log('🔗 Endpoint carregado:', WEB_APP_URL);
-                } else {
-                    console.warn('⚠️ endpointsManager não encontrado, usando fallback.');
-                    WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyal0depSGSESznpVqxnv6FnwOsv2CZXWTdEtU59GB1eC359G3chsgNBnE8ywiXEJXgKw/exec';
-                }
-            } catch (e) {
-                console.error('Erro ao carregar endpoint:', e);
-            }
-            // Inicializar sistema
-            carregarConfiguracoes();
+        document.addEventListener('DOMContentLoaded', async () => {
+
+        if (!window.endpointsManager) {
+            throw new Error('❌ endpointsManager não encontrado.');
+        }
+    
+        await window.endpointsManager.ready;
+    
+        const endpoint = window.endpointsManager.getEndpoint('RELATORIOS_SCRIPT');
+    
+        if (!endpoint) {
+            throw new Error('❌ Endpoint RELATORIOS_SCRIPT não encontrado para a base atual.');
+        }
+    
+        WEB_APP_URL = endpoint;
+    
+        console.log('🔗 Endpoint carregado:', WEB_APP_URL);
+    
+        carregarConfiguracoes();
+    });
+
         });
         let configData = null;
         let proximoNumero = null;
