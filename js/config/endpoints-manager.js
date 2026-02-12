@@ -234,3 +234,10 @@ window.addEventListener('auth-state-changed', () => {
 });
 
 console.log('✅ EndpointsManager carregado');
+
+// Auto-inicializar
+(async () => {
+  await endpointsManager.init();
+  console.log('🚀 EndpointsManager inicializado automaticamente');
+})();
+
