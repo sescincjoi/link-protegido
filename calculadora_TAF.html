@@ -48,7 +48,6 @@
 
         header {
             background: linear-gradient(180deg, var(--fire-red) 0%, var(--dark-red) 100%);
-            /* Aumento da altura do header através do padding */
             padding: calc(15px + env(safe-area-inset-top)) 10px 15px 10px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -57,7 +56,7 @@
 
         header h1 {
             margin: 0;
-            font-size: 20px; /* Leve aumento na fonte */
+            font-size: 20px;
             letter-spacing: 2px;
             text-transform: uppercase;
             display: flex;
@@ -87,17 +86,17 @@
         .timeline-bar {
             height: 100%;
             width: 0%;
-            transition: width 0.05s linear;
             position: absolute;
             left: 0;
             top: 0;
             opacity: 0.8;
+            transition: background-color 0.3s ease;
         }
 
         .bg-10 { background-color: var(--success-green) !important; }
-        .bg-9 { background-color: var(--warning-amber) !important; }
-        .bg-8 { background-color: var(--warning-orange) !important; }
-        .bg-7 { background-color: var(--fire-red) !important; }
+        .bg-9  { background-color: var(--warning-amber) !important; }
+        .bg-8  { background-color: var(--warning-orange) !important; }
+        .bg-7  { background-color: var(--fire-red) !important; }
         .bg-fail { background-color: #000 !important; border-right: 2px solid var(--fire-red); }
 
         .timeline-info {
@@ -111,8 +110,8 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .score-indicator { font-size: 13px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
-        .countdown-timer { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .score-indicator  { font-size: 13px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .countdown-timer  { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
 
         .main-content {
             flex: 1;
@@ -270,7 +269,6 @@
             background: var(--iron);
             width: 100%;
             max-width: 380px;
-            /* Borda do card de resultado alterada para branco */
             border: 2px solid #ffffff;
             border-radius: 8px;
             padding: 20px;
@@ -307,11 +305,11 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        .intro-modal h2 { 
-            color: #fff; 
-            margin-bottom: 20px; 
-            font-size: 22px; 
-            text-transform: uppercase; 
+        .intro-modal h2 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
 
@@ -368,7 +366,6 @@
         .critical-blink { animation: blinker 0.4s infinite alternate; }
         @keyframes blinker { from { opacity: 1; } to { opacity: 0.3; } }
 
-        /* Estilo do botão Novo TAF alterado */
         .btn-reset {
             background: #ffffff;
             color: #000000;
@@ -385,13 +382,44 @@
             transition: transform 0.1s;
         }
         .btn-reset:active { transform: translateY(2px); box-shadow: 0 2px 0 #cccccc; }
+
+        /* Botão de exportar imagem */
+        .btn-export {
+            background: var(--iron);
+            color: #fff;
+            border: 1px solid var(--steel);
+            padding: 15px;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-family: 'Oswald';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-export:hover { background: #3a3a3a; }
+
+        /* Resultado por nota */
+        .nota-detail {
+            font-size: 11px;
+            color: #aaa;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 6px;
+        }
+        .nota-detail.positivo { color: #4caf50; }
+        .nota-detail.negativo { color: #f44336; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>
-        <svg viewBox="0 0 24 24" width="22" height="22" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" style="fill:#fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
         TAF - BA
     </h1>
 </header>
@@ -409,14 +437,7 @@
 <div class="main-content">
     <div class="input-group">
         <label for="idade">Idade do Bombeiro</label>
-        <select id="idade" onchange="resetarContagem()">
-            <option value="" selected disabled>ESCOLHA A IDADE</option>
-            <script>
-                for(let i=18;i<=65;i++){
-                    document.write(`<option value="${i}">${i} ANOS</option>`);
-                }
-            </script>
-        </select>
+        <select id="idade"></select>
     </div>
 
     <!-- Flexão -->
@@ -427,7 +448,7 @@
         </div>
         <div class="timer-row">
             <div class="timer-display" id="flexaoTime">00:00,00</div>
-            <button class="btn-action" onclick="ativar('flexao')">
+            <button class="btn-action" id="btn-flexao" onclick="ativar('flexao')" aria-label="Iniciar flexão">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
@@ -441,7 +462,7 @@
         </div>
         <div class="timer-row">
             <div class="timer-display" id="abdominalTime">00:00,00</div>
-            <button class="btn-action" onclick="ativar('abdominal')">
+            <button class="btn-action" id="btn-abdominal" onclick="ativar('abdominal')" aria-label="Iniciar abdominal">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
@@ -455,19 +476,20 @@
         </div>
         <div class="timer-row">
             <div class="timer-display" id="polichineloTime">00:00,00</div>
-            <button class="btn-action" onclick="ativar('polichinelo')">
+            <button class="btn-action" id="btn-polichinelo" onclick="ativar('polichinelo')" aria-label="Iniciar polichinelo">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
-    <button class="final-btn" onclick="finalizar()">Encerrar Missão</button>
+    <button class="final-btn" onclick="confirmarEncerramento()">Encerrar Missão</button>
 </div>
 
+<!-- Overlay unificado -->
 <div class="overlay" id="overlay">
     <div class="intro-modal" id="introModal">
         <h2>Guia de Operação</h2>
-        
+
         <div class="instruction-item">
             <div class="step-num">1</div>
             <div class="step-text">
@@ -475,7 +497,6 @@
                 Selecione a idade do Bombeiro para carregar os critérios da avaliação.
             </div>
         </div>
-
         <div class="instruction-item">
             <div class="step-num">2</div>
             <div class="step-text">
@@ -483,7 +504,6 @@
                 Toque no Play em qualquer teste para começar. O tempo é contínuo e compartilhado.
             </div>
         </div>
-
         <div class="instruction-item">
             <div class="step-num">3</div>
             <div class="step-text">
@@ -491,206 +511,494 @@
                 Toque no Play de outro teste para transferir a cronometragem. Você pode alternar livremente.
             </div>
         </div>
-
         <div class="instruction-item">
             <div class="step-num">4</div>
             <div class="step-text">
                 <strong>Conclusão</strong>
-                O cronómetro só para definitivamente ao clicar em "Encerrar Missão".
+                O cronômetro só para definitivamente ao clicar em "Encerrar Missão".
             </div>
         </div>
 
-        <button style="background: var(--fire-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 6px; text-transform: uppercase; font-family: 'Oswald'; margin-top: 10px;" onclick="fecharIntro()">Iniciar Operação</button>
+        <button style="background:var(--fire-red);color:white;border:none;padding:15px;width:100%;cursor:pointer;font-weight:bold;border-radius:6px;text-transform:uppercase;font-family:'Oswald';margin-top:10px;" onclick="fecharIntro()">Iniciar Operação</button>
+    </div>
+
+    <!-- Modal de confirmação de encerramento -->
+    <div class="modal" id="confirmModal" style="border-color: var(--fire-red);">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="#d32f2f" style="margin-bottom:10px;"><path d="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"/></svg>
+        <h2 style="text-transform:uppercase;color:#fff;font-size:18px;margin-bottom:8px;">Encerrar Missão?</h2>
+        <p style="color:#aaa;font-size:13px;font-family:'JetBrains Mono',monospace;margin-bottom:20px;line-height:1.5;">O cronômetro será parado<br>e o resultado calculado.</p>
+        <button onclick="confirmarSim()" style="background:var(--fire-red);color:white;border:none;padding:14px;width:100%;cursor:pointer;font-weight:bold;border-radius:6px;text-transform:uppercase;font-family:'Oswald';font-size:15px;margin-bottom:10px;">Confirmar Encerramento</button>
+        <button onclick="confirmarNao()" style="background:var(--iron);color:#ccc;border:1px solid var(--steel);padding:12px;width:100%;cursor:pointer;font-weight:bold;border-radius:6px;text-transform:uppercase;font-family:'Oswald';font-size:14px;">Voltar ao TAF</button>
     </div>
 
     <div class="loading-container" id="loader">
         <div class="spinner"></div>
-        <p style="letter-spacing: 2px; color: #fff; font-weight: bold; text-transform: uppercase;">Processando Dados...</p>
+        <p style="letter-spacing:2px;color:#fff;font-weight:bold;text-transform:uppercase;">Processando Dados...</p>
     </div>
-    
+
     <div class="modal" id="finalModal">
-        <h2 style="text-transform: uppercase; color: #fff; font-size: 18px;">Relatório TAF</h2>
+        <h2 style="text-transform:uppercase;color:#fff;font-size:18px;">Relatório TAF</h2>
         <div id="results-content"></div>
+        <button class="btn-export" onclick="exportarImagem()">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg>
+            Salvar como Imagem
+        </button>
         <button class="btn-reset" onclick="fecharModalCompleto()">Novo TAF</button>
     </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- Canvas oculto para exportação -->
+<canvas id="exportCanvas" style="display:none;"></canvas>
+
 <script>
-    let activeExercise = null;
-    let interval = null;
-    let timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
-    
-    window.onload = () => {
-        document.getElementById("overlay").style.display = "flex";
-        document.getElementById("introModal").style.display = "block";
+    // ─── Estado da aplicação ───────────────────────────────────────────────────
+    const EXERCISES = ['flexao', 'abdominal', 'polichinelo'];
+
+    const state = {
+        activeExercise: null,
+        rafId: null,
+        startTimestamp: 0,
+        timers: { flexao: 0, abdominal: 0, polichinelo: 0 },
+        finalData: null,  // guarda dados para exportação
     };
 
-    function fecharIntro() {
-        document.getElementById("overlay").style.display = "none";
-        document.getElementById("introModal").style.display = "none";
-    }
-
+    // ─── Limites por faixa etária (ms) ────────────────────────────────────────
     function getLimites(idade) {
         if (!idade) return null;
-        const sub40 = idade < 40;
-        return sub40 ? { 10: 120000, 9: 140000, 8: 160000, 7: 180000 } 
-                     : { 10: 180000, 9: 200000, 8: 220000, 7: 240000 };
+        return Number(idade) < 40
+            ? { 10: 120000, 9: 140000, 8: 160000, 7: 180000 }
+            : { 10: 180000, 9: 200000, 8: 220000, 7: 240000 };
     }
 
-    /**
-     * Formata tempo para o padrão 00:00,00
-     */
+    // ─── Formatação de tempo ───────────────────────────────────────────────────
     function formatTime(ms) {
-        let absMs = Math.abs(ms);
-        let mins = Math.floor(absMs / 60000);
-        let secs = Math.floor((absMs % 60000) / 1000);
-        let cents = Math.floor((absMs % 1000) / 10);
+        const absMs = Math.abs(ms);
+        const mins  = Math.floor(absMs / 60000);
+        const secs  = Math.floor((absMs % 60000) / 1000);
+        const cents = Math.floor((absMs % 1000) / 10);
         return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')},${String(cents).padStart(2,'0')}`;
     }
 
-    function resetarContagem() {
-        const idadeVal = document.getElementById("idade").value;
-        if (!idadeVal) return;
-        const limites = getLimites(Number(idadeVal));
-        document.getElementById("regressivo").innerText = formatTime(limites[7]);
-        document.getElementById("notaAtual").innerText = "NOTA: 10";
-        const bar = document.getElementById("progressBar");
-        bar.className = "timeline-bar bg-10";
-        bar.style.width = "0%";
+    // ─── Cálculo de nota ──────────────────────────────────────────────────────
+    function calcularNota(total, limites) {
+        if (!limites) return { nota: '-', colorClass: '' };
+        if (total <= limites[10]) return { nota: '10', colorClass: 'bg-10' };
+        if (total <= limites[9])  return { nota: '9',  colorClass: 'bg-9'  };
+        if (total <= limites[8])  return { nota: '8',  colorClass: 'bg-8'  };
+        if (total <= limites[7])  return { nota: '7',  colorClass: 'bg-7'  };
+        return { nota: 'REPROVADO', colorClass: 'bg-fail' };
     }
 
-    function ativar(exercise) {
-        const idade = document.getElementById("idade").value;
-        if (!idade) {
-            const t = document.getElementById('toast');
-            t.innerText = "⚠️ SELECIONE A IDADE!";
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
-            return;
+    // ─── Popoulate select de idades ───────────────────────────────────────────
+    function popularSelectIdade() {
+        const sel = document.getElementById('idade');
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'ESCOLHA A IDADE';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        sel.appendChild(placeholder);
+
+        for (let i = 18; i <= 65; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${i} ANOS`;
+            sel.appendChild(opt);
         }
 
-        if (activeExercise === exercise) return;
+        sel.addEventListener('change', resetarContagem);
+    }
 
-        clearInterval(interval);
-        activeExercise = exercise;
-        let startTimestamp = Date.now() - timers[exercise];
+    // ─── Toast helper ─────────────────────────────────────────────────────────
+    function showToast(msg, duration = 3000) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => { t.style.display = 'none'; }, duration);
+    }
 
-        interval = setInterval(() => {
-            timers[exercise] = Date.now() - startTimestamp;
-            document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
-            updateTimeline();
-        }, 33);
-        updateUI();
+    // ─── Timeline / barra de progresso ───────────────────────────────────────
+    function resetarContagem() {
+        const idadeVal = document.getElementById('idade').value;
+        if (!idadeVal) return;
+        const limites = getLimites(Number(idadeVal));
+        document.getElementById('regressivo').innerText = formatTime(limites[7]);
+        document.getElementById('notaAtual').innerText  = 'NOTA: 10';
+        const bar = document.getElementById('progressBar');
+        bar.className   = 'timeline-bar bg-10';
+        bar.style.width = '0%';
     }
 
     function updateTimeline() {
-        const idadeVal = document.getElementById("idade").value;
-        if(!idadeVal) return;
+        const idadeVal = document.getElementById('idade').value;
+        if (!idadeVal) return;
+
         const limites = getLimites(Number(idadeVal));
-        const total = timers.flexao + timers.abdominal + timers.polichinelo;
-        const bar = document.getElementById("progressBar");
-        const notaTxt = document.getElementById("notaAtual");
-        const reg = document.getElementById("regressivo");
+        const total   = state.timers.flexao + state.timers.abdominal + state.timers.polichinelo;
+        const { nota, colorClass } = calcularNota(total, limites);
 
-        let score = "REPROVADO";
-        let colorClass = "bg-fail";
+        const bar     = document.getElementById('progressBar');
+        const notaTxt = document.getElementById('notaAtual');
+        const reg     = document.getElementById('regressivo');
 
-        if (total <= limites[10]) { score = "10"; colorClass = "bg-10"; }
-        else if (total <= limites[9]) { score = "9"; colorClass = "bg-9"; }
-        else if (total <= limites[8]) { score = "8"; colorClass = "bg-8"; }
-        else if (total <= limites[7]) { score = "7"; colorClass = "bg-7"; }
+        bar.className   = 'timeline-bar ' + colorClass;
+        bar.style.width = Math.min((total / limites[7]) * 100, 100) + '%';
+        notaTxt.innerText = 'NOTA: ' + nota;
+        reg.innerText     = formatTime(Math.max(0, limites[7] - total));
 
-        bar.className = "timeline-bar " + colorClass;
-        bar.style.width = Math.min((total / limites[7]) * 100, 100) + "%";
-        notaTxt.innerText = "NOTA: " + score;
-        reg.innerText = formatTime(Math.max(0, limites[7] - total));
-
-        if (score === "REPROVADO") {
-            reg.classList.add("critical-blink");
-            bar.classList.add("critical-blink");
+        if (nota === 'REPROVADO') {
+            reg.classList.add('critical-blink');
+            bar.classList.add('critical-blink');
         } else {
-            reg.classList.remove("critical-blink");
-            bar.classList.remove("critical-blink");
+            reg.classList.remove('critical-blink');
+            bar.classList.remove('critical-blink');
         }
     }
 
+    // ─── Loop de animação (requestAnimationFrame) ──────────────────────────────
+    function rafLoop(timestamp) {
+        const ex = state.activeExercise;
+        if (!ex) return;
+
+        state.timers[ex] = Date.now() - state.startTimestamp;
+        document.getElementById(ex + 'Time').innerText = formatTime(state.timers[ex]);
+        updateTimeline();
+
+        state.rafId = requestAnimationFrame(rafLoop);
+    }
+
+    // ─── Ativar exercício ─────────────────────────────────────────────────────
+    function ativar(exercise) {
+        const idade = document.getElementById('idade').value;
+        if (!idade) { showToast('⚠️ SELECIONE A IDADE!'); return; }
+        if (state.activeExercise === exercise) return;
+
+        // Cancela o loop anterior
+        if (state.rafId) cancelAnimationFrame(state.rafId);
+
+        state.activeExercise = exercise;
+        state.startTimestamp  = Date.now() - state.timers[exercise];
+
+        state.rafId = requestAnimationFrame(rafLoop);
+        updateUI();
+    }
+
+    // ─── Atualiza visual dos cards/botões ─────────────────────────────────────
     function updateUI() {
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.btn-action').forEach(b => {
-            b.classList.remove('running');
-            b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
-        });
+        const playIcon = `<svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
 
-        if (activeExercise) {
-            const card = document.getElementById("card-" + activeExercise);
-            const btn = card.querySelector('.btn-action');
-            card.classList.add('active');
-            btn.classList.add('running');
+        EXERCISES.forEach(ex => {
+            const card = document.getElementById('card-' + ex);
+            const btn  = document.getElementById('btn-'  + ex);
+            const isActive = state.activeExercise === ex;
+
+            card.classList.toggle('active', isActive);
+            btn.classList.toggle('running', isActive);
+            btn.innerHTML = playIcon;
+        });
+    }
+
+    // ─── Confirmação de encerramento ──────────────────────────────────────────
+    function confirmarEncerramento() {
+        const idade = document.getElementById('idade').value;
+        if (!idade) { showToast('⚠️ SELECIONE A IDADE!'); return; }
+
+        // Pausa o loop enquanto aguarda confirmação
+        if (state.rafId) cancelAnimationFrame(state.rafId);
+
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('confirmModal').style.display = 'block';
+        document.getElementById('introModal').style.display  = 'none';
+        document.getElementById('loader').style.display      = 'none';
+        document.getElementById('finalModal').style.display  = 'none';
+    }
+
+    function confirmarSim() {
+        document.getElementById('confirmModal').style.display = 'none';
+        finalizar();
+    }
+
+    function confirmarNao() {
+        document.getElementById('overlay').style.display      = 'none';
+        document.getElementById('confirmModal').style.display = 'none';
+
+        // Retoma o loop se havia exercício ativo
+        if (state.activeExercise) {
+            state.startTimestamp = Date.now() - state.timers[state.activeExercise];
+            state.rafId = requestAnimationFrame(rafLoop);
         }
     }
 
+    // ─── Finalizar TAF ────────────────────────────────────────────────────────
     function finalizar() {
-        clearInterval(interval);
-        activeExercise = null;
+        if (state.rafId) cancelAnimationFrame(state.rafId);
+        state.activeExercise = null;
         updateUI();
 
-        const idadeVal = document.getElementById("idade").value;
-        if (!idadeVal) {
-            const t = document.getElementById('toast');
-            t.innerText = "⚠️ SELECIONE A IDADE!";
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
-            return;
+        const idadeVal = document.getElementById('idade').value;
+        if (!idadeVal) { showToast('⚠️ SELECIONE A IDADE!'); return; }
+
+        const limites = getLimites(Number(idadeVal));
+        const total   = state.timers.flexao + state.timers.abdominal + state.timers.polichinelo;
+        const { nota } = calcularNota(total, limites);
+
+        // Detalhamento de notas (diferença para próxima/anterior)
+        const notaNum = parseInt(nota);
+        let detalhe = '';
+        if (!isNaN(notaNum)) {
+            if (notaNum < 10) {
+                const faltou = total - limites[notaNum + 1];
+                detalhe = `<div class="nota-detail negativo">▲ ${formatTime(faltou)} além do limite da nota ${notaNum + 1}</div>`;
+            } else {
+                detalhe = `<div class="nota-detail positivo">✔ Nota máxima atingida</div>`;
+            }
+        } else {
+            const faltou = total - limites[7];
+            detalhe = `<div class="nota-detail negativo">▲ ${formatTime(faltou)} além do limite de aprovação</div>`;
         }
 
-        document.getElementById("overlay").style.display = "flex";
-        document.getElementById("loader").style.display = "flex";
-        document.getElementById("finalModal").style.display = "none";
-        document.getElementById("introModal").style.display = "none";
+        // Guarda dados para exportação
+        state.finalData = {
+            idade: idadeVal,
+            timers: { ...state.timers },
+            total,
+            nota,
+            detalhe,
+            limites,
+        };
 
-        const total = timers.flexao + timers.abdominal + timers.polichinelo;
-        const limites = getLimites(Number(idadeVal));
-        
-        let finalNota = "REPROVADO";
-        let colorClass = "color-fail";
-
-        if (total <= limites[10]) { finalNota = "10"; colorClass = "color-10"; }
-        else if (total <= limites[9]) { finalNota = "9"; colorClass = "color-9"; }
-        else if (total <= limites[8]) { finalNota = "8"; colorClass = "color-8"; }
-        else if (total <= limites[7]) { finalNota = "7"; colorClass = "color-7"; }
-
-        document.getElementById("results-content").innerHTML = `
-            <div style="font-family: 'JetBrains Mono'; background: #000; padding: 12px; border-radius: 6px; border: 1px solid #333; margin: 10px 0; text-align: left; color: #fff; font-size: 13px;">
-                FLEXÕES: ${formatTime(timers.flexao)}<br>
-                ABDOMINAIS: ${formatTime(timers.abdominal)}<br>
-                POLICHINELOS: ${formatTime(timers.polichinelo)}<br><br>
-                <span style="color: #aaa">TEMPO TOTAL:</span> ${formatTime(total)}
+        document.getElementById('results-content').innerHTML = `
+            <div style="font-family:'JetBrains Mono';background:#000;padding:12px;border-radius:6px;border:1px solid #333;margin:10px 0;text-align:left;color:#fff;font-size:13px;">
+                FLEXÕES: ${formatTime(state.timers.flexao)}<br>
+                ABDOMINAIS: ${formatTime(state.timers.abdominal)}<br>
+                POLICHINELOS: ${formatTime(state.timers.polichinelo)}<br><br>
+                <span style="color:#aaa">TEMPO TOTAL:</span> ${formatTime(total)}
             </div>
-            <div class="nota-box" style="margin-top: 15px; font-size: 40px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;"><span class="${colorClass.replace('bg-', 'color-')}">NOTA: ${finalNota}</span></div>
+            <div style="margin-top:15px;font-size:40px;font-weight:bold;background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
+                NOTA: ${nota}
+            </div>
+            ${detalhe}
         `;
 
+        // Exibe loader e depois modal
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('loader').style.display = 'flex';
+        document.getElementById('finalModal').style.display = 'none';
+        document.getElementById('introModal').style.display = 'none';
+
         setTimeout(() => {
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("finalModal").style.display = "block";
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('finalModal').style.display = 'block';
         }, 1200);
     }
 
+    // ─── Exportar resultado como imagem (Canvas) ──────────────────────────────
+    function exportarImagem() {
+        const d = state.finalData;
+        if (!d) return;
+
+        const W = 640, H = 560;
+        const canvas = document.getElementById('exportCanvas');
+        canvas.width  = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        // Fundo
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, '#1a1a1a');
+        bg.addColorStop(1, '#000000');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Faixa header vermelha
+        const hg = ctx.createLinearGradient(0, 0, 0, 70);
+        hg.addColorStop(0, '#d32f2f');
+        hg.addColorStop(1, '#8b0000');
+        ctx.fillStyle = hg;
+        ctx.fillRect(0, 0, W, 70);
+
+        // Divisa branca
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 70, W, 4);
+
+        // Título
+        ctx.fillStyle = '#ffffff';
+        ctx.font      = 'bold 26px Oswald, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('TAF - BA  |  BOMBEIROS MILITAR', W / 2, 46);
+
+        // Subtítulo
+        ctx.font      = '16px Oswald, sans-serif';
+        ctx.fillStyle = '#ffcdd2';
+        ctx.fillText(`Bombeiro · ${d.idade} Anos`, W / 2, 66);
+
+        // Linha separadora
+        ctx.strokeStyle = '#454545';
+        ctx.lineWidth   = 1;
+
+        // Bloco de tempos
+        const exercicios = [
+            { label: 'FLEXÕES',      time: d.timers.flexao      },
+            { label: 'ABDOMINAIS',   time: d.timers.abdominal   },
+            { label: 'POLICHINELOS', time: d.timers.polichinelo },
+        ];
+
+        let y = 115;
+        ctx.textAlign = 'left';
+
+        exercicios.forEach((ex) => {
+            // fundo do bloco
+            ctx.fillStyle = '#1e1e1e';
+            roundRect(ctx, 40, y, W - 80, 62, 8);
+            ctx.fill();
+
+            ctx.strokeStyle = '#454545';
+            ctx.lineWidth   = 1;
+            roundRect(ctx, 40, y, W - 80, 62, 8);
+            ctx.stroke();
+
+            // label
+            ctx.fillStyle = '#999999';
+            ctx.font      = '13px Oswald, sans-serif';
+            ctx.fillText(ex.label, 60, y + 22);
+
+            // tempo
+            ctx.fillStyle = '#ffffff';
+            ctx.font      = 'bold 28px "JetBrains Mono", monospace';
+            ctx.fillText(formatTime(ex.time), 60, y + 50);
+
+            y += 78;
+        });
+
+        // Linha divisória total
+        ctx.strokeStyle = '#454545';
+        ctx.lineWidth   = 1;
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(W - 40, y);
+        ctx.stroke();
+        y += 18;
+
+        // Tempo total
+        ctx.textAlign  = 'left';
+        ctx.fillStyle  = '#aaaaaa';
+        ctx.font       = '14px Oswald, sans-serif';
+        ctx.fillText('TEMPO TOTAL', 40, y + 16);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font      = 'bold 22px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatTime(d.total), W - 40, y + 16);
+        y += 50;
+
+        // Bloco da nota
+        const notaNum  = parseInt(d.nota);
+        let notaColor  = '#f44336'; // reprovado
+        if (d.nota === '10') notaColor = '#2e7d32';
+        else if (d.nota === '9')  notaColor = '#ffc107';
+        else if (d.nota === '8')  notaColor = '#ff8f00';
+        else if (d.nota === '7')  notaColor = '#d32f2f';
+
+        ctx.fillStyle = notaColor;
+        roundRect(ctx, 40, y, W - 80, 80, 10);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font      = 'bold 42px Oswald, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`NOTA: ${d.nota}`, W / 2, y + 54);
+
+        y += 96;
+
+        // Detalhe margem
+        const detalheTexto = gerarDetalheTexto(d);
+        ctx.font      = '14px "JetBrains Mono", monospace';
+        ctx.fillStyle = notaColor === '#2e7d32' ? '#4caf50' : '#ef9a9a';
+        ctx.textAlign = 'center';
+        ctx.fillText(detalheTexto, W / 2, y);
+
+        // Rodapé
+        ctx.fillStyle = '#555';
+        ctx.font      = '12px Oswald, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, W / 2, H - 18);
+
+        // Download
+        const link = document.createElement('a');
+        link.download = `TAF-BA_Nota${d.nota}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    // Texto limpo para o canvas (sem HTML)
+    function gerarDetalheTexto(d) {
+        const notaNum = parseInt(d.nota);
+        if (!isNaN(notaNum)) {
+            if (notaNum < 10) {
+                const faltou = d.total - d.limites[notaNum + 1];
+                return `${formatTime(faltou)} além do limite da nota ${notaNum + 1}`;
+            }
+            return '✔ Nota máxima atingida';
+        }
+        const faltou = d.total - d.limites[7];
+        return `${formatTime(faltou)} além do limite de aprovação`;
+    }
+
+    // Utilitário: retângulo com cantos arredondados para Canvas
+    function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+
+    // ─── Reset completo ───────────────────────────────────────────────────────
     function fecharModalCompleto() {
-        document.getElementById("overlay").style.display = "none";
-        timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
-        document.getElementById("idade").selectedIndex = 0;
-        document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00,00");
-        document.getElementById("regressivo").innerText = "00:00,00";
-        document.getElementById("notaAtual").innerText = "NOTA: -";
-        const bar = document.getElementById("progressBar");
-        bar.style.width = "0%";
-        bar.className = "timeline-bar";
+        if (state.rafId) cancelAnimationFrame(state.rafId);
+
+        state.activeExercise = null;
+        state.rafId          = null;
+        state.timers         = { flexao: 0, abdominal: 0, polichinelo: 0 };
+        state.finalData      = null;
+
+        document.getElementById('idade').selectedIndex = 0;
+        document.querySelectorAll('.timer-display').forEach(d => { d.innerText = '00:00,00'; });
+        document.getElementById('regressivo').innerText = '00:00,00';
+        document.getElementById('notaAtual').innerText  = 'NOTA: -';
+
+        const bar = document.getElementById('progressBar');
+        bar.style.width = '0%';
+        bar.className   = 'timeline-bar';
+
+        document.getElementById('overlay').style.display      = 'none';
+        document.getElementById('confirmModal').style.display = 'none';
         updateUI();
     }
-</script>
 
+    // ─── Fechar intro ─────────────────────────────────────────────────────────
+    function fecharIntro() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('introModal').style.display = 'none';
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        popularSelectIdade();
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('introModal').style.display = 'block';
+    });
+</script>
 </body>
 </html>
-
