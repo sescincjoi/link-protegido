@@ -3,134 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TAF - Teste de Aptidão Física</title>
+<title>Calculadora de TAF</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #111;
+  background: #0d0d0d;
   color: #fff;
 }
 
 header {
-  background-color: #b30000;
-  padding: 15px;
+  background: #b30000;
+  padding: 14px 25px;
   text-align: center;
-  font-size: 20px;
   font-weight: bold;
+  font-size: 20px;
   letter-spacing: 1px;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 700px;
   margin: auto;
-  padding: 20px;
+  padding: 20px 25px;
 }
 
+/* IDADE */
+.age-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.age-container select {
+  background: #000;
+  color: #fff;
+  border: 2px solid #444;
+  padding: 6px 18px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+/* CARDS */
 .card {
-  background-color: #1c1c1c;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 2px solid #333;
+  background: #1a1a1a;
+  padding: 8px 22px; /* vertical menor */
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   transition: 0.3s;
 }
 
 .card.active {
-  border-color: #ff0000;
-  box-shadow: 0 0 15px #ff0000;
+  animation: pulseShadow 1s infinite;
 }
 
-.exercise-title {
-  font-size: 18px;
+@keyframes pulseShadow {
+  0% { box-shadow: 0 0 5px #ff0000; }
+  50% { box-shadow: 0 0 20px #ff0000; }
+  100% { box-shadow: 0 0 5px #ff0000; }
+}
+
+.exercise {
   font-weight: bold;
 }
 
 .timer {
-  font-size: 28px;
-  margin: 10px 0;
+  font-size: 22px;
+  letter-spacing: 1px;
 }
 
-button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
+.play-btn {
+  font-size: 20px;
   cursor: pointer;
-  font-weight: bold;
+  transition: 0.3s;
 }
 
-.play {
-  background-color: #b30000;
-  color: white;
+.play-btn.running {
+  animation: pulseIcon 1s infinite;
 }
 
-.final {
+@keyframes pulseIcon {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.final-btn {
   width: 100%;
-  background-color: #006600;
-  color: white;
-  padding: 12px;
-  font-size: 16px;
   margin-top: 10px;
+  padding: 10px 22px;
+  background: #006600;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-input {
-  padding: 8px;
-  width: 100px;
-  font-size: 16px;
-}
-
-.resultado {
+/* LOADING */
+.loading {
+  text-align: center;
   margin-top: 20px;
-  padding: 15px;
-  background-color: #1c1c1c;
+  display: none;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.4s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #1c1c1c;
+  padding: 20px 28px;
   border-radius: 8px;
   border: 2px solid #444;
+  text-align: center;
+  min-width: 280px;
+}
+
+.nota {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff0000;
+  margin-top: 10px;
 }
 </style>
 </head>
-
 <body>
 
 <header>
-  CORPO DE BOMBEIROS - TAF OPERACIONAL
+  Calculadora de TAF 🔥
 </header>
 
 <div class="container">
 
-  <div class="card">
-    <label>Idade:</label>
-    <input type="number" id="idade" min="1" placeholder="Idade">
-    <span id="faixa"></span>
+  <div class="age-container">
+    <select id="idade">
+      <option value="">Selecione a idade</option>
+      <script>
+        for(let i=18;i<=70;i++){
+          document.write(`<option value="${i}">${i} anos</option>`)
+        }
+      </script>
+    </select>
   </div>
 
   <div class="card" id="card-flexao">
-    <div class="exercise-title">Flexões (30)</div>
-    <div class="timer" id="flexaoTime">00:00</div>
-    <button class="play" onclick="start('flexao')">INICIAR</button>
+    <div class="exercise">Flexões (30)</div>
+    <div class="timer" id="flexaoTime">00:00.000</div>
+    <div class="play-btn" onclick="start('flexao', this)">▶️</div>
   </div>
 
   <div class="card" id="card-abdominal">
-    <div class="exercise-title">Abdominais (45)</div>
-    <div class="timer" id="abdominalTime">00:00</div>
-    <button class="play" onclick="start('abdominal')">INICIAR</button>
+    <div class="exercise">Abdominais (45)</div>
+    <div class="timer" id="abdominalTime">00:00.000</div>
+    <div class="play-btn" onclick="start('abdominal', this)">▶️</div>
   </div>
 
   <div class="card" id="card-polichinelo">
-    <div class="exercise-title">Polichinelos (45)</div>
-    <div class="timer" id="polichineloTime">00:00</div>
-    <button class="play" onclick="start('polichinelo')">INICIAR</button>
+    <div class="exercise">Polichinelos (45)</div>
+    <div class="timer" id="polichineloTime">00:00.000</div>
+    <div class="play-btn" onclick="start('polichinelo', this)">▶️</div>
   </div>
 
-  <button class="final" onclick="finalizar()">FINALIZAR TESTE</button>
+  <button class="final-btn" onclick="finalizar()">FINALIZAR TESTE</button>
 
-  <div class="resultado" id="resultado"></div>
+  <div class="loading" id="loading">Processando resultado...</div>
 
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalContent"></div>
 </div>
 
 <script>
 let activeExercise = null;
 let interval = null;
+let startTime = null;
 
 const timers = {
   flexao: 0,
@@ -140,76 +203,94 @@ const timers = {
 
 let totalTime = 0;
 
-function formatTime(seconds) {
-  const min = String(Math.floor(seconds / 60)).padStart(2, "0");
-  const sec = String(seconds % 60).padStart(2, "0");
-  return `${min}:${sec}`;
+function formatTime(ms) {
+  let minutes = Math.floor(ms / 60000);
+  let seconds = Math.floor((ms % 60000) / 1000);
+  let milliseconds = ms % 1000;
+  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(milliseconds).padStart(3,'0')}`;
 }
 
 function clearActive() {
-  document.querySelectorAll('.card').forEach(card => {
-    card.classList.remove('active');
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.play-btn').forEach(b => {
+    b.classList.remove('running');
+    b.innerHTML = "▶️";
   });
 }
 
-function start(exercise) {
-  const idade = Number(document.getElementById("idade").value);
-  if (!idade) {
-    alert("Informe a idade antes de iniciar.");
+function start(exercise, btn) {
+  const idade = document.getElementById("idade").value;
+  if(!idade) {
+    alert("Selecione a idade.");
     return;
   }
 
-  if (interval) clearInterval(interval);
+  if(interval) clearInterval(interval);
 
   activeExercise = exercise;
   clearActive();
+
   document.getElementById("card-" + exercise).classList.add("active");
+  btn.classList.add("running");
+  btn.innerHTML = "⏱️";
+
+  startTime = Date.now();
 
   interval = setInterval(() => {
-    timers[exercise]++;
-    totalTime++;
-
-    document.getElementById(exercise + "Time").innerText =
-      formatTime(timers[exercise]);
-  }, 1000);
+    let now = Date.now();
+    let diff = now - startTime;
+    timers[exercise] += 10;
+    totalTime += 10;
+    document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
+  }, 10);
 }
 
-function calcularNota(idade, tempoTotal) {
+function calcularNota(idade, tempo) {
   if (idade <= 40) {
-    if (tempoTotal <= 120) return 10;
-    if (tempoTotal <= 140) return 9;
-    if (tempoTotal <= 160) return 8;
-    if (tempoTotal <= 180) return 7;
+    if (tempo <= 120000) return 10;
+    if (tempo <= 140000) return 9;
+    if (tempo <= 160000) return 8;
+    if (tempo <= 180000) return 7;
     return "REPROVADO";
   } else {
-    if (tempoTotal <= 180) return 10;
-    if (tempoTotal <= 200) return 9;
-    if (tempoTotal <= 220) return 8;
-    if (tempoTotal <= 240) return 7;
+    if (tempo <= 180000) return 10;
+    if (tempo <= 200000) return 9;
+    if (tempo <= 220000) return 8;
+    if (tempo <= 240000) return 7;
     return "REPROVADO";
   }
 }
 
 function finalizar() {
-  if (interval) clearInterval(interval);
+  if(interval) clearInterval(interval);
   clearActive();
 
   const idade = Number(document.getElementById("idade").value);
-  if (!idade) {
-    alert("Informe a idade.");
-    return;
-  }
+  if(!idade) return alert("Selecione a idade.");
 
-  const nota = calcularNota(idade, totalTime);
+  document.getElementById("loading").style.display = "block";
 
-  document.getElementById("resultado").innerHTML = `
-    <strong>RESULTADO FINAL</strong><br><br>
-    Flexões: ${formatTime(timers.flexao)}<br>
-    Abdominais: ${formatTime(timers.abdominal)}<br>
-    Polichinelos: ${formatTime(timers.polichinelo)}<br><br>
-    Tempo Total: ${formatTime(totalTime)}<br><br>
-    Nota: <strong>${nota}</strong>
-  `;
+  setTimeout(() => {
+    document.getElementById("loading").style.display = "none";
+
+    const nota = calcularNota(idade, totalTime);
+
+    document.getElementById("modalContent").innerHTML = `
+      <h3>RESULTADO FINAL</h3>
+      <p>Flexões: ${formatTime(timers.flexao)}</p>
+      <p>Abdominais: ${formatTime(timers.abdominal)}</p>
+      <p>Polichinelos: ${formatTime(timers.polichinelo)}</p>
+      <hr>
+      <p><strong>Tempo Total:</strong> ${formatTime(totalTime)}</p>
+      <div class="nota">${nota}</div>
+    `;
+
+    document.getElementById("modal").style.display = "flex";
+  }, 2000);
+}
+
+document.getElementById("modal").onclick = function(){
+  this.style.display = "none";
 }
 </script>
 
