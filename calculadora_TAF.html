@@ -6,148 +6,156 @@
 <title>Calculadora de TAF</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0d0d0d;
-  color: #fff;
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0d0d0d;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
 }
 
-header {
-  background: #b30000;
-  padding: 14px 25px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 20px;
-  letter-spacing: 1px;
+header{
+  background:#b30000;
+  padding:14px 25px;
+  text-align:center;
+  font-weight:bold;
+  font-size:20px;
+  letter-spacing:1px;
 }
 
-.container {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px 25px;
+.container{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:20px 25px;
+  width:100%;
+  max-width:700px;
+  margin:auto;
 }
 
 /* IDADE */
-.age-container {
-  text-align: center;
-  margin-bottom: 25px;
+.age-container{
+  margin-bottom:30px;
 }
 
-.age-container select {
-  background: #000;
-  color: #fff;
-  border: 2px solid #444;
-  padding: 6px 18px;
-  font-size: 16px;
-  border-radius: 6px;
+.age-container select{
+  background:#000;
+  color:#fff;
+  border:2px solid #444;
+  padding:6px 18px;
+  font-size:16px;
+  border-radius:6px;
 }
 
 /* CARDS */
-.card {
-  background: #1a1a1a;
-  padding: 8px 22px; /* vertical menor */
-  margin-bottom: 14px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: 0.3s;
+.card{
+  width:100%;
+  background:#1a1a1a;
+  padding:8px 22px;
+  margin-bottom:14px;
+  border-radius:6px;
+  border:1px solid #333;
+  transition:.3s;
 }
 
-.card.active {
-  animation: pulseShadow 1s infinite;
+.card.active{
+  animation:pulseShadow 1s infinite;
 }
 
-@keyframes pulseShadow {
-  0% { box-shadow: 0 0 5px #ff0000; }
-  50% { box-shadow: 0 0 20px #ff0000; }
-  100% { box-shadow: 0 0 5px #ff0000; }
+@keyframes pulseShadow{
+  0%{ box-shadow:0 0 5px #ff0000;}
+  50%{ box-shadow:0 0 20px #ff0000;}
+  100%{ box-shadow:0 0 5px #ff0000;}
 }
 
-.exercise {
-  font-weight: bold;
+.exercise-title{
+  text-transform:uppercase;
+  font-weight:bold;
+  font-size:14px;
+  margin-bottom:6px;
 }
 
-.timer {
-  font-size: 22px;
-  letter-spacing: 1px;
+.bottom-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.play-btn {
-  font-size: 20px;
-  cursor: pointer;
-  transition: 0.3s;
+.timer{
+  font-size:24px;
+  letter-spacing:2px;
+  margin:auto;
 }
 
-.play-btn.running {
-  animation: pulseIcon 1s infinite;
+.play-btn{
+  font-size:22px;
+  cursor:pointer;
+  color:#fff;
+  background:none;
+  border:none;
 }
 
-@keyframes pulseIcon {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+.play-btn.running{
+  animation:pulseIcon 1s infinite;
 }
 
-.final-btn {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px 22px;
-  background: #006600;
-  border: none;
-  color: white;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
+@keyframes pulseIcon{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.25);}
+  100%{transform:scale(1);}
 }
 
-/* LOADING */
-.loading {
-  text-align: center;
-  margin-top: 20px;
-  display: none;
+.final-btn{
+  margin-top:15px;
+  padding:10px 28px;
+  background:#006600;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:6px;
+  cursor:pointer;
 }
 
 /* MODAL */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  animation: fadeIn 0.4s;
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  animation:fadeIn .4s;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes fadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 
-.modal {
-  background: #1c1c1c;
-  padding: 20px 28px;
-  border-radius: 8px;
-  border: 2px solid #444;
-  text-align: center;
-  min-width: 280px;
+.modal{
+  background:#1c1c1c;
+  padding:20px 28px;
+  border-radius:8px;
+  border:2px solid #444;
+  text-align:center;
 }
 
-.nota {
-  font-size: 32px;
-  font-weight: bold;
-  color: #ff0000;
-  margin-top: 10px;
+.nota{
+  font-size:32px;
+  font-weight:bold;
+  color:#ff0000;
+  margin-top:10px;
 }
 </style>
 </head>
+
 <body>
 
-<header>
-  Calculadora de TAF 🔥
-</header>
+<header>Calculadora de TAF 🔥</header>
 
 <div class="container">
 
@@ -163,26 +171,30 @@ header {
   </div>
 
   <div class="card" id="card-flexao">
-    <div class="exercise">Flexões (30)</div>
-    <div class="timer" id="flexaoTime">00:00.000</div>
-    <div class="play-btn" onclick="start('flexao', this)">▶️</div>
+    <div class="exercise-title">Flexões (30)</div>
+    <div class="bottom-row">
+      <div class="timer" id="flexaoTime">00:00:00</div>
+      <button class="play-btn" onclick="start('flexao', this)">▶</button>
+    </div>
   </div>
 
   <div class="card" id="card-abdominal">
-    <div class="exercise">Abdominais (45)</div>
-    <div class="timer" id="abdominalTime">00:00.000</div>
-    <div class="play-btn" onclick="start('abdominal', this)">▶️</div>
+    <div class="exercise-title">Abdominais (45)</div>
+    <div class="bottom-row">
+      <div class="timer" id="abdominalTime">00:00:00</div>
+      <button class="play-btn" onclick="start('abdominal', this)">▶</button>
+    </div>
   </div>
 
   <div class="card" id="card-polichinelo">
-    <div class="exercise">Polichinelos (45)</div>
-    <div class="timer" id="polichineloTime">00:00.000</div>
-    <div class="play-btn" onclick="start('polichinelo', this)">▶️</div>
+    <div class="exercise-title">Polichinelos (45)</div>
+    <div class="bottom-row">
+      <div class="timer" id="polichineloTime">00:00:00</div>
+      <button class="play-btn" onclick="start('polichinelo', this)">▶</button>
+    </div>
   </div>
 
   <button class="final-btn" onclick="finalizar()">FINALIZAR TESTE</button>
-
-  <div class="loading" id="loading">Processando resultado...</div>
 
 </div>
 
@@ -191,106 +203,97 @@ header {
 </div>
 
 <script>
-let activeExercise = null;
-let interval = null;
-let startTime = null;
+let activeExercise=null;
+let interval=null;
+let startTimestamp=null;
 
-const timers = {
-  flexao: 0,
-  abdominal: 0,
-  polichinelo: 0
+const timers={
+  flexao:0,
+  abdominal:0,
+  polichinelo:0
 };
 
-let totalTime = 0;
+let totalTime=0;
 
-function formatTime(ms) {
-  let minutes = Math.floor(ms / 60000);
-  let seconds = Math.floor((ms % 60000) / 1000);
-  let milliseconds = ms % 1000;
-  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(milliseconds).padStart(3,'0')}`;
+function formatTime(ms){
+  let minutes=Math.floor(ms/60000);
+  let seconds=Math.floor((ms%60000)/1000);
+  let centiseconds=Math.floor((ms%1000)/10);
+  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}:${String(centiseconds).padStart(2,'0')}`;
 }
 
-function clearActive() {
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.play-btn').forEach(b => {
+function clearActive(){
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.play-btn').forEach(b=>{
     b.classList.remove('running');
-    b.innerHTML = "▶️";
+    b.innerHTML="▶";
   });
 }
 
-function start(exercise, btn) {
-  const idade = document.getElementById("idade").value;
-  if(!idade) {
-    alert("Selecione a idade.");
-    return;
-  }
+function start(exercise,btn){
+  const idade=document.getElementById("idade").value;
+  if(!idade){alert("Selecione a idade.");return;}
 
   if(interval) clearInterval(interval);
 
-  activeExercise = exercise;
+  activeExercise=exercise;
   clearActive();
 
-  document.getElementById("card-" + exercise).classList.add("active");
+  document.getElementById("card-"+exercise).classList.add("active");
   btn.classList.add("running");
-  btn.innerHTML = "⏱️";
+  btn.innerHTML="⏱";
 
-  startTime = Date.now();
+  startTimestamp=Date.now()-timers[exercise];
 
-  interval = setInterval(() => {
-    let now = Date.now();
-    let diff = now - startTime;
-    timers[exercise] += 10;
-    totalTime += 10;
-    document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
-  }, 10);
+  interval=setInterval(()=>{
+    let now=Date.now();
+    timers[exercise]=now-startTimestamp;
+    totalTime=timers.flexao+timers.abdominal+timers.polichinelo;
+    document.getElementById(exercise+"Time").innerText=formatTime(timers[exercise]);
+  },10);
 }
 
-function calcularNota(idade, tempo) {
-  if (idade <= 40) {
-    if (tempo <= 120000) return 10;
-    if (tempo <= 140000) return 9;
-    if (tempo <= 160000) return 8;
-    if (tempo <= 180000) return 7;
+function calcularNota(idade,tempo){
+  if(idade<=40){
+    if(tempo<=120000) return 10;
+    if(tempo<=140000) return 9;
+    if(tempo<=160000) return 8;
+    if(tempo<=180000) return 7;
     return "REPROVADO";
-  } else {
-    if (tempo <= 180000) return 10;
-    if (tempo <= 200000) return 9;
-    if (tempo <= 220000) return 8;
-    if (tempo <= 240000) return 7;
+  }else{
+    if(tempo<=180000) return 10;
+    if(tempo<=200000) return 9;
+    if(tempo<=220000) return 8;
+    if(tempo<=240000) return 7;
     return "REPROVADO";
   }
 }
 
-function finalizar() {
+function finalizar(){
   if(interval) clearInterval(interval);
   clearActive();
 
-  const idade = Number(document.getElementById("idade").value);
-  if(!idade) return alert("Selecione a idade.");
+  const idade=Number(document.getElementById("idade").value);
+  if(!idade){alert("Selecione a idade.");return;}
 
-  document.getElementById("loading").style.display = "block";
+  const nota=calcularNota(idade,totalTime);
 
-  setTimeout(() => {
-    document.getElementById("loading").style.display = "none";
-
-    const nota = calcularNota(idade, totalTime);
-
-    document.getElementById("modalContent").innerHTML = `
+  setTimeout(()=>{
+    document.getElementById("modalContent").innerHTML=`
       <h3>RESULTADO FINAL</h3>
       <p>Flexões: ${formatTime(timers.flexao)}</p>
       <p>Abdominais: ${formatTime(timers.abdominal)}</p>
       <p>Polichinelos: ${formatTime(timers.polichinelo)}</p>
       <hr>
       <p><strong>Tempo Total:</strong> ${formatTime(totalTime)}</p>
-      <div class="nota">${nota}</div>
+      <div class="nota">NOTA: ${nota}</div>
     `;
-
-    document.getElementById("modal").style.display = "flex";
-  }, 2000);
+    document.getElementById("modal").style.display="flex";
+  },2000);
 }
 
-document.getElementById("modal").onclick = function(){
-  this.style.display = "none";
+document.getElementById("modal").onclick=function(){
+  this.style.display="none";
 }
 </script>
 
