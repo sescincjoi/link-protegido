@@ -48,7 +48,8 @@
 
         header {
             background: linear-gradient(180deg, var(--fire-red) 0%, var(--dark-red) 100%);
-            padding: calc(8px + env(safe-area-inset-top)) 10px 8px 10px;
+            /* Aumento da altura do header através do padding */
+            padding: calc(15px + env(safe-area-inset-top)) 10px 15px 10px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
@@ -56,7 +57,7 @@
 
         header h1 {
             margin: 0;
-            font-size: 18px;
+            font-size: 20px; /* Leve aumento na fonte */
             letter-spacing: 2px;
             text-transform: uppercase;
             display: flex;
@@ -269,7 +270,8 @@
             background: var(--iron);
             width: 100%;
             max-width: 380px;
-            border: 2px solid var(--fire-red);
+            /* Borda do card de resultado alterada para branco */
+            border: 2px solid #ffffff;
             border-radius: 8px;
             padding: 20px;
             text-align: center;
@@ -365,13 +367,31 @@
 
         .critical-blink { animation: blinker 0.4s infinite alternate; }
         @keyframes blinker { from { opacity: 1; } to { opacity: 0.3; } }
+
+        /* Estilo do botão Novo TAF alterado */
+        .btn-reset {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-family: 'Oswald';
+            box-shadow: 0 4px 0 #cccccc;
+            transition: transform 0.1s;
+        }
+        .btn-reset:active { transform: translateY(2px); box-shadow: 0 2px 0 #cccccc; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>
-        <svg viewBox="0 0 24 24" width="20" height="20" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
         TAF - BA
     </h1>
 </header>
@@ -382,7 +402,7 @@
     <div class="timeline-bar" id="progressBar"></div>
     <div class="timeline-info">
         <span class="score-indicator" id="notaAtual">NOTA: -</span>
-        <span class="countdown-timer" id="regressivo">00:00:00</span>
+        <span class="countdown-timer" id="regressivo">00:00,00</span>
     </div>
 </div>
 
@@ -406,7 +426,7 @@
             <span class="exercise-goal">30 Rep.</span>
         </div>
         <div class="timer-row">
-            <div class="timer-display" id="flexaoTime">00:00:00</div>
+            <div class="timer-display" id="flexaoTime">00:00,00</div>
             <button class="btn-action" onclick="ativar('flexao')">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
@@ -420,7 +440,7 @@
             <span class="exercise-goal">45 Rep.</span>
         </div>
         <div class="timer-row">
-            <div class="timer-display" id="abdominalTime">00:00:00</div>
+            <div class="timer-display" id="abdominalTime">00:00,00</div>
             <button class="btn-action" onclick="ativar('abdominal')">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
@@ -434,7 +454,7 @@
             <span class="exercise-goal">45 Rep.</span>
         </div>
         <div class="timer-row">
-            <div class="timer-display" id="polichineloTime">00:00:00</div>
+            <div class="timer-display" id="polichineloTime">00:00,00</div>
             <button class="btn-action" onclick="ativar('polichinelo')">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
@@ -476,7 +496,7 @@
             <div class="step-num">4</div>
             <div class="step-text">
                 <strong>Conclusão</strong>
-                O cronômetro só para definitivamente ao clicar em "Encerrar Missão".
+                O cronómetro só para definitivamente ao clicar em "Encerrar Missão".
             </div>
         </div>
 
@@ -491,7 +511,7 @@
     <div class="modal" id="finalModal">
         <h2 style="text-transform: uppercase; color: #fff; font-size: 18px;">Relatório TAF</h2>
         <div id="results-content"></div>
-        <button style="background: var(--success-green); color: white; border: none; padding: 15px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 6px; text-transform: uppercase; font-family: 'Oswald';" onclick="fecharModalCompleto()">Novo TAF</button>
+        <button class="btn-reset" onclick="fecharModalCompleto()">Novo TAF</button>
     </div>
 </div>
 
@@ -519,12 +539,15 @@
                      : { 10: 180000, 9: 200000, 8: 220000, 7: 240000 };
     }
 
+    /**
+     * Formata tempo para o padrão 00:00,00
+     */
     function formatTime(ms) {
         let absMs = Math.abs(ms);
         let mins = Math.floor(absMs / 60000);
         let secs = Math.floor((absMs % 60000) / 1000);
         let cents = Math.floor((absMs % 1000) / 10);
-        return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}:${String(cents).padStart(2,'0')}`;
+        return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')},${String(cents).padStart(2,'0')}`;
     }
 
     function resetarContagem() {
@@ -658,8 +681,8 @@
         document.getElementById("overlay").style.display = "none";
         timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
         document.getElementById("idade").selectedIndex = 0;
-        document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00:00");
-        document.getElementById("regressivo").innerText = "00:00:00";
+        document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00,00");
+        document.getElementById("regressivo").innerText = "00:00,00";
         document.getElementById("notaAtual").innerText = "NOTA: -";
         const bar = document.getElementById("progressBar");
         bar.style.width = "0%";
