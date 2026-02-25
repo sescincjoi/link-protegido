@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>TAF - BA | Bombeiros Militar</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -21,27 +23,35 @@
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+            background-color: #000;
         }
 
         body {
-            margin: 0;
-            padding: 0;
             font-family: 'Oswald', sans-serif;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
             color: var(--text-white);
             display: flex;
             flex-direction: column;
+            height: 100vh;
             height: 100dvh;
-            overflow: hidden;
         }
 
         header {
             background: linear-gradient(180deg, var(--fire-red) 0%, var(--dark-red) 100%);
-            padding: calc(10px + env(safe-area-inset-top)) 10px 10px 10px;
+            padding: calc(8px + env(safe-area-inset-top)) 10px 8px 10px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
-            z-index: 10;
         }
 
         header h1 {
@@ -60,7 +70,6 @@
             background-color: #ffffff;
             width: 100%;
             flex-shrink: 0;
-            z-index: 11;
         }
 
         .timeline-container {
@@ -81,14 +90,14 @@
             position: absolute;
             left: 0;
             top: 0;
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
-        .score-10 { background-color: var(--success-green) !important; }
-        .score-9 { background-color: var(--warning-amber) !important; }
-        .score-8 { background-color: var(--warning-orange) !important; }
-        .score-7 { background-color: var(--fire-red) !important; }
-        .score-fail { background-color: #000 !important; border-right: 2px solid var(--fire-red); }
+        .bg-10 { background-color: var(--success-green) !important; }
+        .bg-9 { background-color: var(--warning-amber) !important; }
+        .bg-8 { background-color: var(--warning-orange) !important; }
+        .bg-7 { background-color: var(--fire-red) !important; }
+        .bg-fail { background-color: #000 !important; border-right: 2px solid var(--fire-red); }
 
         .timeline-info {
             position: relative;
@@ -99,41 +108,34 @@
             align-items: center;
             padding: 0 12px;
             font-family: 'JetBrains Mono', monospace;
-            text-shadow: 1px 1px 2px #000;
         }
 
-        .score-indicator { font-size: 14px; font-weight: bold; color: #fff; }
-        .countdown-timer { font-size: 18px; font-weight: bold; color: #fff; }
+        .score-indicator { font-size: 13px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .countdown-timer { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
 
-        .critical-blink {
-            animation: blinker 0.4s steps(2, start) infinite;
-        }
-
-        @keyframes blinker {
-            to { visibility: hidden; }
-        }
-
-        .container {
+        .main-content {
             flex: 1;
-            width: 100%;
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 10px 15px;
             display: flex;
             flex-direction: column;
+            padding: 8px 12px 10px 12px;
+            max-width: 450px;
+            margin: 0 auto;
+            width: 100%;
             justify-content: space-between;
+            overflow: hidden;
         }
 
         .input-group {
             background: var(--iron);
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             border-left: 4px solid var(--warning-amber);
+            flex-shrink: 0;
         }
 
         .input-group label {
             display: block;
-            font-size: 10px;
+            font-size: 9px;
             color: #aaa;
             margin-bottom: 2px;
             text-transform: uppercase;
@@ -146,104 +148,113 @@
             border: 1px solid var(--steel);
             padding: 6px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 16px;
+            font-size: 14px;
             border-radius: 4px;
             outline: none;
+            appearance: none;
         }
 
         .card {
-            background: linear-gradient(145deg, #222, #1a1a1a);
+            background: linear-gradient(145deg, #222, #111);
             border: 1px solid var(--steel);
-            border-radius: 6px;
-            padding: 10px 15px;
-            position: relative;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 3px; height: 100%;
-            background: var(--steel);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            margin: 3px 0;
+            min-height: 50px;
+            transition: all 0.3s ease;
         }
 
         .card.active {
             border-color: var(--fire-red);
-            background: #1e1e1e;
+            background: #1a0a0a;
+            box-shadow: 0 0 12px rgba(211, 47, 47, 0.25);
         }
 
-        .card.active::before { background: var(--fire-red); }
-
-        .exercise-info {
+        .exercise-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 4px;
         }
 
         .exercise-title {
             text-transform: uppercase;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: #eee;
+            color: #ccc;
         }
 
         .exercise-goal {
-            font-size: 11px;
+            font-size: 10px;
             background: var(--steel);
-            padding: 1px 6px;
-            border-radius: 4px;
-            color: #fff;
+            padding: 1px 5px;
+            border-radius: 3px;
             font-family: 'JetBrains Mono', monospace;
+        }
+
+        .timer-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
 
         .timer-display {
             font-family: 'JetBrains Mono', monospace;
             font-size: 28px;
-            color: var(--text-white);
+            color: #fff;
+            min-width: 140px;
             text-align: center;
-            margin: 5px 0;
         }
 
         .active .timer-display { color: var(--fire-red); }
 
         .btn-action {
-            background: var(--steel);
-            border: none;
+            background: var(--iron);
+            border: 1px solid var(--steel);
             color: white;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             cursor: pointer;
-            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
         }
 
         .btn-action.running {
             background: var(--fire-red);
             box-shadow: 0 0 10px var(--fire-red);
+            cursor: default;
         }
 
         .final-btn {
             background: var(--success-green);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 14px 12px calc(16px + env(safe-area-inset-bottom)) 12px;
             font-family: 'Oswald', sans-serif;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            flex-shrink: 0;
             margin-bottom: 5px;
+            box-shadow: 0 4px 0 #1b4b1e;
         }
 
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.97);
             display: none;
             justify-content: center;
             align-items: center;
@@ -256,45 +267,108 @@
             width: 100%;
             max-width: 380px;
             border: 2px solid var(--fire-red);
-            border-radius: 4px;
+            border-radius: 8px;
             padding: 20px;
             text-align: center;
+            display: none;
         }
 
-        .nota-box {
-            font-size: 38px;
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .intro-modal {
+            background: var(--iron);
+            width: 100%;
+            max-width: 380px;
+            border-left: 6px solid var(--fire-red);
+            padding: 25px;
+            border-radius: 8px;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .intro-modal h2 { 
+            color: #fff; 
+            margin-bottom: 20px; 
+            font-size: 22px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .instruction-item {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            background: var(--fire-red);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 4px;
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        .aprovado { color: var(--success-green); }
-        .reprovado { color: var(--fire-red); }
+        .step-text {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .step-text strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 15px;
+        }
 
         #toast {
             position: fixed;
-            top: 120px;
+            top: 15%;
             left: 50%;
             transform: translateX(-50%);
             background: var(--dark-red);
             padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             display: none;
             z-index: 1000;
             border: 1px solid var(--warning-amber);
-            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap; /* Garante que o texto fique em uma linha só */
         }
 
-        svg { fill: currentColor; }
+        .critical-blink { animation: blinker 0.4s infinite alternate; }
+        @keyframes blinker { from { opacity: 1; } to { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
 <header>
     <h1>
-        <svg viewBox="0 0 24 24" width="22" height="22" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
         TAF - BA
     </h1>
 </header>
@@ -304,16 +378,16 @@
 <div class="timeline-container">
     <div class="timeline-bar" id="progressBar"></div>
     <div class="timeline-info">
-        <span class="score-indicator" id="notaAtual">NOTA: 10</span>
+        <span class="score-indicator" id="notaAtual">NOTA: -</span>
         <span class="countdown-timer" id="regressivo">00:00:00</span>
     </div>
 </div>
 
-<div class="container">
+<div class="main-content">
     <div class="input-group">
-        <label for="idade">Idade do Operacional</label>
+        <label for="idade">Idade do Bombeiro</label>
         <select id="idade" onchange="resetarContagem()">
-            <option value="">Selecione...</option>
+            <option value="" selected disabled>ESCOLHA A IDADE</option>
             <script>
                 for(let i=18;i<=65;i++){
                     document.write(`<option value="${i}">${i} ANOS</option>`);
@@ -323,40 +397,40 @@
     </div>
 
     <div class="card" id="card-flexao">
-        <div class="exercise-info">
-            <span class="exercise-title">Flexões de Braço</span>
+        <div class="exercise-header">
+            <span class="exercise-title">Flexões</span>
             <span class="exercise-goal">30 Rep.</span>
         </div>
-        <div class="timer-display" id="flexaoTime">00:00:00</div>
-        <div class="controls">
+        <div class="timer-row">
+            <div class="timer-display" id="flexaoTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('flexao')">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
     <div class="card" id="card-abdominal">
-        <div class="exercise-info">
+        <div class="exercise-header">
             <span class="exercise-title">Abdominais</span>
             <span class="exercise-goal">45 Rep.</span>
         </div>
-        <div class="timer-display" id="abdominalTime">00:00:00</div>
-        <div class="controls">
+        <div class="timer-row">
+            <div class="timer-display" id="abdominalTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('abdominal')">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
     <div class="card" id="card-polichinelo">
-        <div class="exercise-info">
+        <div class="exercise-header">
             <span class="exercise-title">Polichinelos</span>
             <span class="exercise-goal">45 Rep.</span>
         </div>
-        <div class="timer-display" id="polichineloTime">00:00:00</div>
-        <div class="controls">
+        <div class="timer-row">
+            <div class="timer-display" id="polichineloTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('polichinelo')">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
@@ -365,10 +439,53 @@
 </div>
 
 <div class="overlay" id="overlay">
-    <div class="modal">
-        <h2 style="text-transform: uppercase; letter-spacing: 1px;">Relatório Final</h2>
+    <div class="intro-modal" id="introModal">
+        <h2>Guia de Operação</h2>
+        
+        <div class="instruction-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+                <strong>Configuração</strong>
+                Selecione a idade do Bombeiro para carregar os critérios da avaliação.
+            </div>
+        </div>
+
+        <div class="instruction-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+                <strong>Início</strong>
+                Toque no Play em qualquer teste para começar. O tempo é contínuo e compartilhado.
+            </div>
+        </div>
+
+        <div class="instruction-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+                <strong>Migração</strong>
+                Toque no Play de outro teste para transferir a cronometragem. Você pode alternar livremente.
+            </div>
+        </div>
+
+        <div class="instruction-item">
+            <div class="step-num">4</div>
+            <div class="step-text">
+                <strong>Conclusão</strong>
+                O cronômetro só para definitivamente ao clicar em "Encerrar Missão".
+            </div>
+        </div>
+
+        <button style="background: var(--fire-red); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 6px; text-transform: uppercase; font-family: 'Oswald'; margin-top: 10px;" onclick="fecharIntro()">Iniciar Operação</button>
+    </div>
+
+    <div class="loading-container" id="loader">
+        <div class="spinner"></div>
+        <p style="letter-spacing: 2px; color: #fff; font-weight: bold; text-transform: uppercase;">Processando Dados...</p>
+    </div>
+    
+    <div class="modal" id="finalModal">
+        <h2 style="text-transform: uppercase; color: #fff; font-size: 18px;">Relatório TAF</h2>
         <div id="results-content"></div>
-        <button class="close-modal" style="background: var(--steel); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 4px;" onclick="fecharModal()">REINICIAR TAF</button>
+        <button style="background: var(--success-green); color: white; border: none; padding: 15px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 6px; text-transform: uppercase; font-family: 'Oswald';" onclick="fecharModalCompleto()">Novo TAF</button>
     </div>
 </div>
 
@@ -379,30 +496,21 @@
     let interval = null;
     let timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
     
-    // Regra BA baseada na solicitação do usuário:
-    // Sub-40: 02:20 a 02:40 é Nota 8. Limite total 03:00.
-    // 40+: 03:20 a 03:40 é Nota 8. Limite total 04:00.
+    window.onload = () => {
+        document.getElementById("overlay").style.display = "flex";
+        document.getElementById("introModal").style.display = "block";
+    };
+
+    function fecharIntro() {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("introModal").style.display = "none";
+    }
+
     function getLimites(idade) {
         if (!idade) return null;
-        
         const sub40 = idade < 40;
-        
-        // Tempos em milissegundos
-        if (sub40) {
-            return {
-                10: 120000, // Até 02:00
-                9: 140000,  // Até 02:20
-                8: 160000,  // 02:20 a 02:40 (160s = 2min 40s)
-                7: 180000   // 02:40 a 03:00
-            };
-        } else {
-            return {
-                10: 180000, // Até 03:00
-                9: 200000,  // Até 03:20
-                8: 220000,  // 03:20 a 03:40 (220s = 3min 40s)
-                7: 240000   // 03:40 a 04:00
-            };
-        }
+        return sub40 ? { 10: 120000, 9: 140000, 8: 160000, 7: 180000 } 
+                     : { 10: 180000, 9: 200000, 8: 220000, 7: 240000 };
     }
 
     function formatTime(ms) {
@@ -414,16 +522,14 @@
     }
 
     function resetarContagem() {
-        const idade = document.getElementById("idade").value;
-        const limites = getLimites(Number(idade));
-        if (limites) {
-            document.getElementById("regressivo").innerText = formatTime(limites[7]);
-            document.getElementById("notaAtual").innerText = "NOTA: 10";
-            const bar = document.getElementById("progressBar");
-            bar.className = "timeline-bar score-10";
-            bar.style.width = "0%";
-            document.getElementById("regressivo").classList.remove("critical-blink", "reprovado");
-        }
+        const idadeVal = document.getElementById("idade").value;
+        if (!idadeVal) return;
+        const limites = getLimites(Number(idadeVal));
+        document.getElementById("regressivo").innerText = formatTime(limites[7]);
+        document.getElementById("notaAtual").innerText = "NOTA: 10";
+        const bar = document.getElementById("progressBar");
+        bar.className = "timeline-bar bg-10";
+        bar.style.width = "0%";
     }
 
     function ativar(exercise) {
@@ -435,9 +541,10 @@
             setTimeout(() => t.style.display = 'none', 3000);
             return;
         }
+
         if (activeExercise === exercise) return;
 
-        if (interval) clearInterval(interval);
+        clearInterval(interval);
         activeExercise = exercise;
         let startTimestamp = Date.now() - timers[exercise];
 
@@ -445,64 +552,38 @@
             timers[exercise] = Date.now() - startTimestamp;
             document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
             updateTimeline();
-        }, 30);
-
+        }, 33);
         updateUI();
     }
 
     function updateTimeline() {
-        const idade = Number(document.getElementById("idade").value);
-        const limites = getLimites(idade);
-        if (!limites) return;
-
+        const idadeVal = document.getElementById("idade").value;
+        if(!idadeVal) return;
+        const limites = getLimites(Number(idadeVal));
         const total = timers.flexao + timers.abdominal + timers.polichinelo;
         const bar = document.getElementById("progressBar");
-        const reg = document.getElementById("regressivo");
         const notaTxt = document.getElementById("notaAtual");
+        const reg = document.getElementById("regressivo");
 
-        let currentScoreStr = "REPROVADO";
-        let barClass = "score-fail";
-        let timeLeft = 0;
+        let score = "REPROVADO";
+        let colorClass = "bg-fail";
 
-        // Lógica de Notas ajustada
-        if (total <= limites[10]) {
-            currentScoreStr = "10";
-            barClass = "score-10";
-        } else if (total <= limites[9]) {
-            currentScoreStr = "9";
-            barClass = "score-9";
-        } else if (total <= limites[8]) {
-            currentScoreStr = "8";
-            barClass = "score-8";
-        } else if (total <= limites[7]) {
-            currentScoreStr = "7";
-            barClass = "score-7";
+        if (total <= limites[10]) { score = "10"; colorClass = "bg-10"; }
+        else if (total <= limites[9]) { score = "9"; colorClass = "bg-9"; }
+        else if (total <= limites[8]) { score = "8"; colorClass = "bg-8"; }
+        else if (total <= limites[7]) { score = "7"; colorClass = "bg-7"; }
+
+        bar.className = "timeline-bar " + colorClass;
+        bar.style.width = Math.min((total / limites[7]) * 100, 100) + "%";
+        notaTxt.innerText = "NOTA: " + score;
+        reg.innerText = formatTime(Math.max(0, limites[7] - total));
+
+        if (score === "REPROVADO") {
+            reg.classList.add("critical-blink");
+            bar.classList.add("critical-blink");
         } else {
-            currentScoreStr = "REPROVADO";
-            barClass = "score-fail";
-        }
-
-        // Tempo restante até reprovação (Nota 7 expirar)
-        timeLeft = Math.max(0, limites[7] - total);
-
-        if (bar.className !== "timeline-bar " + barClass) {
-            bar.className = "timeline-bar " + barClass;
-        }
-
-        let perc = Math.min((total / limites[7]) * 100, 100);
-        bar.style.width = perc + "%";
-        notaTxt.innerText = "NOTA: " + currentScoreStr;
-
-        if (currentScoreStr === "REPROVADO") {
-            reg.innerText = "00:00:00";
-            if (!bar.classList.contains("critical-blink")) {
-                bar.classList.add("critical-blink");
-                reg.classList.add("critical-blink", "reprovado");
-            }
-        } else {
-            reg.innerText = formatTime(timeLeft);
+            reg.classList.remove("critical-blink");
             bar.classList.remove("critical-blink");
-            reg.classList.remove("critical-blink", "reprovado");
         }
     }
 
@@ -510,7 +591,7 @@
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.btn-action').forEach(b => {
             b.classList.remove('running');
-            b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
+            b.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
         });
 
         if (activeExercise) {
@@ -518,48 +599,65 @@
             const btn = card.querySelector('.btn-action');
             card.classList.add('active');
             btn.classList.add('running');
-            btn.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/></svg>`;
         }
     }
 
     function finalizar() {
-        if (interval) clearInterval(interval);
+        clearInterval(interval);
         activeExercise = null;
         updateUI();
 
+        const idadeVal = document.getElementById("idade").value;
+        if (!idadeVal) {
+            const t = document.getElementById('toast');
+            t.innerText = "⚠️ SELECIONE A IDADE!";
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+            return;
+        }
+
+        document.getElementById("overlay").style.display = "flex";
+        document.getElementById("loader").style.display = "flex";
+        document.getElementById("finalModal").style.display = "none";
+        document.getElementById("introModal").style.display = "none";
+
         const total = timers.flexao + timers.abdominal + timers.polichinelo;
-        const limites = getLimites(Number(document.getElementById("idade").value));
+        const limites = getLimites(Number(idadeVal));
         
         let finalNota = "REPROVADO";
-        if (total <= limites[10]) finalNota = "10";
-        else if (total <= limites[9]) finalNota = "9";
-        else if (total <= limites[8]) finalNota = "8";
-        else if (total <= limites[7]) finalNota = "7";
+        let colorClass = "color-fail";
 
-        const statusClass = finalNota === "REPROVADO" ? "reprovado" : "aprovado";
+        if (total <= limites[10]) { finalNota = "10"; colorClass = "color-10"; }
+        else if (total <= limites[9]) { finalNota = "9"; colorClass = "color-9"; }
+        else if (total <= limites[8]) { finalNota = "8"; colorClass = "color-8"; }
+        else if (total <= limites[7]) { finalNota = "7"; colorClass = "color-7"; }
 
-        const content = `
-            <div style="font-family: 'JetBrains Mono'; font-size: 14px; text-align: left; margin-bottom: 15px; background: #000; padding: 12px; border-radius: 4px; border: 1px solid #333;">
-                FLEXÃO: ${formatTime(timers.flexao)}<br>
-                ABDOMINAL: ${formatTime(timers.abdominal)}<br>
-                POLICHINELO: ${formatTime(timers.polichinelo)}
+        document.getElementById("results-content").innerHTML = `
+            <div style="font-family: 'JetBrains Mono'; background: #000; padding: 12px; border-radius: 6px; border: 1px solid #333; margin: 10px 0; text-align: left; color: #fff; font-size: 13px;">
+                FLEXÕES: ${formatTime(timers.flexao)}<br>
+                ABDOMINAIS: ${formatTime(timers.abdominal)}<br>
+                POLICHINELOS: ${formatTime(timers.polichinelo)}<br><br>
+                <span style="color: #aaa">TEMPO TOTAL:</span> ${formatTime(total)}
             </div>
-            <div style="background: #111; padding: 10px; border-radius: 4px;">
-                <div style="font-size: 11px; color: #888; text-transform: uppercase;">Tempo Total de Missão</div>
-                <div style="font-size: 24px; font-family: 'JetBrains Mono'; color: #fff;">${formatTime(total)}</div>
-                <div class="nota-box ${statusClass}">NOTA: ${finalNota}</div>
-            </div>
+            <div class="nota-box" style="margin-top: 15px; font-size: 40px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;"><span class="${colorClass.replace('bg-', 'color-')}">NOTA: ${finalNota}</span></div>
         `;
 
-        document.getElementById("results-content").innerHTML = content;
-        document.getElementById("overlay").style.display = "flex";
+        setTimeout(() => {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("finalModal").style.display = "block";
+        }, 1200);
     }
 
-    function fecharModal() {
+    function fecharModalCompleto() {
         document.getElementById("overlay").style.display = "none";
         timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
+        document.getElementById("idade").selectedIndex = 0;
         document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00:00");
-        resetarContagem();
+        document.getElementById("regressivo").innerText = "00:00:00";
+        document.getElementById("notaAtual").innerText = "NOTA: -";
+        const bar = document.getElementById("progressBar");
+        bar.style.width = "0%";
+        bar.className = "timeline-bar";
         updateUI();
     }
 </script>
