@@ -2,9 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TAF - Bombeiros Militar</title>
-    <!-- Google Fonts -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TAF - BA | Bombeiros Militar</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +13,8 @@
             --iron: #2a2a2a;
             --steel: #454545;
             --warning-amber: #ffc107;
+            --warning-orange: #ff8f00;
+            --success-green: #2e7d32;
             --text-white: #f5f5f5;
         }
 
@@ -24,32 +25,93 @@
 
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Oswald', sans-serif;
             background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
             color: var(--text-white);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden; /* Impede rolagem na tela principal */
+            height: 100dvh;
+            overflow: hidden;
         }
 
         header {
             background: linear-gradient(180deg, var(--fire-red) 0%, var(--dark-red) 100%);
-            padding: 10px;
+            padding: calc(10px + env(safe-area-inset-top)) 10px 10px 10px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            border-bottom: 2px solid var(--warning-amber);
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         header h1 {
             margin: 0;
             font-size: 18px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+        }
+
+        .white-divider {
+            height: 3px;
+            background-color: #ffffff;
+            width: 100%;
+            flex-shrink: 0;
+            z-index: 11;
+        }
+
+        .timeline-container {
+            background: #000;
+            height: 38px;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--steel);
+            flex-shrink: 0;
+        }
+
+        .timeline-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.05s linear; /* Transição rápida para movimento suave */
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0.9;
+        }
+
+        /* Classes de cores aplicadas via JS em tempo real */
+        .score-10 { background-color: var(--success-green) !important; }
+        .score-9 { background-color: var(--warning-amber) !important; }
+        .score-8 { background-color: var(--warning-orange) !important; }
+        .score-7 { background-color: var(--fire-red) !important; }
+        .score-fail { background-color: #000 !important; border-right: 2px solid var(--fire-red); }
+
+        .timeline-info {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .score-indicator { font-size: 14px; font-weight: bold; color: #fff; }
+        .countdown-timer { font-size: 18px; font-weight: bold; color: #fff; }
+
+        .critical-blink {
+            animation: blinker 0.4s steps(2, start) infinite;
+        }
+
+        @keyframes blinker {
+            to { visibility: hidden; }
         }
 
         .container {
@@ -57,24 +119,24 @@
             width: 100%;
             max-width: 450px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 10px 15px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribui os itens para ocupar a tela */
+            justify-content: space-between;
         }
 
         .input-group {
             background: var(--iron);
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             border-left: 4px solid var(--warning-amber);
         }
 
         .input-group label {
             display: block;
-            font-size: 11px;
+            font-size: 10px;
             color: #aaa;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-transform: uppercase;
         }
 
@@ -83,7 +145,7 @@
             background: #000;
             color: var(--warning-amber);
             border: 1px solid var(--steel);
-            padding: 8px;
+            padding: 6px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 16px;
             border-radius: 4px;
@@ -94,47 +156,34 @@
             background: linear-gradient(145deg, #222, #1a1a1a);
             border: 1px solid var(--steel);
             border-radius: 6px;
-            padding: 12px 18px;
+            padding: 10px 15px;
             position: relative;
-            transition: all 0.3s ease;
         }
 
         .card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
             background: var(--steel);
         }
 
         .card.active {
             border-color: var(--fire-red);
             background: #1e1e1e;
-            box-shadow: 0 0 15px rgba(211, 47, 47, 0.3);
         }
 
-        .card.active::before {
-            background: var(--fire-red);
-            animation: pulse-border 1.5s infinite;
-        }
-
-        @keyframes pulse-border {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+        .card.active::before { background: var(--fire-red); }
 
         .exercise-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
         }
 
         .exercise-title {
             text-transform: uppercase;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: #eee;
         }
@@ -150,46 +199,38 @@
 
         .timer-display {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 32px;
+            font-size: 28px;
             color: var(--text-white);
             text-align: center;
             margin: 5px 0;
         }
 
-        .active .timer-display {
-            color: var(--fire-red);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-        }
+        .active .timer-display { color: var(--fire-red); }
 
         .btn-action {
             background: var(--steel);
             border: none;
             color: white;
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             cursor: pointer;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
         }
 
         .btn-action.running {
             background: var(--fire-red);
             box-shadow: 0 0 10px var(--fire-red);
-            cursor: default; /* Indica que clicar novamente não faz nada */
         }
 
         .final-btn {
-            background: #2e7d32;
+            background: var(--success-green);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 14px;
             font-family: 'Oswald', sans-serif;
             font-size: 18px;
             font-weight: 700;
@@ -197,10 +238,9 @@
             letter-spacing: 1px;
             border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            margin-bottom: 5px;
         }
 
-        /* Modal */
         .overlay {
             position: fixed;
             inset: 0;
@@ -222,59 +262,30 @@
             text-align: center;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-family: 'JetBrains Mono', monospace;
-            border-bottom: 1px solid #333;
-            padding-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .total-box {
-            background: #000;
-            padding: 12px;
-            margin-top: 15px;
-            border-radius: 4px;
-        }
-
-        .nota-final {
-            font-size: 42px;
-            font-weight: 700;
-            color: var(--warning-amber);
-            margin: 5px 0;
-        }
-
-        .reprovado { color: #ff4444; }
-        .aprovado { color: #44ff44; }
-
-        .close-modal {
-            margin-top: 15px;
-            background: var(--steel);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
+        .nota-box {
+            font-size: 38px;
             font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
         }
+
+        .aprovado { color: var(--success-green); }
+        .reprovado { color: var(--fire-red); }
 
         #toast {
             position: fixed;
-            top: 70px;
+            top: 120px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--dark-red);
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 4px;
             display: none;
             z-index: 1000;
             border: 1px solid var(--warning-amber);
             font-size: 14px;
-            white-space: nowrap;
         }
 
         svg { fill: currentColor; }
@@ -284,15 +295,25 @@
 
 <header>
     <h1>
-        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
-        TAF - BOMBEIROS
+        <svg viewBox="0 0 24 24" width="22" height="22" style="fill: #fff;"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3L19,6.11V11C19,15.33 16.25,19.43 12,20.93C7.75,19.43 5,15.33 5,11V6.11L12,3Z"/></svg>
+        TAF - BA
     </h1>
 </header>
+
+<div class="white-divider"></div>
+
+<div class="timeline-container">
+    <div class="timeline-bar" id="progressBar"></div>
+    <div class="timeline-info">
+        <span class="score-indicator" id="notaAtual">NOTA: 10</span>
+        <span class="countdown-timer" id="regressivo">00:00:00</span>
+    </div>
+</div>
 
 <div class="container">
     <div class="input-group">
         <label for="idade">Idade do Operacional</label>
-        <select id="idade">
+        <select id="idade" onchange="resetarContagem()">
             <option value="">Selecione...</option>
             <script>
                 for(let i=18;i<=65;i++){
@@ -302,7 +323,6 @@
         </select>
     </div>
 
-    <!-- Exercícios -->
     <div class="card" id="card-flexao">
         <div class="exercise-info">
             <span class="exercise-title">Flexões de Braço</span>
@@ -311,7 +331,7 @@
         <div class="timer-display" id="flexaoTime">00:00:00</div>
         <div class="controls">
             <button class="btn-action" onclick="ativar('flexao')">
-                <svg id="icon-flexao" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
@@ -324,7 +344,7 @@
         <div class="timer-display" id="abdominalTime">00:00:00</div>
         <div class="controls">
             <button class="btn-action" onclick="ativar('abdominal')">
-                <svg id="icon-abdominal" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
@@ -337,21 +357,19 @@
         <div class="timer-display" id="polichineloTime">00:00:00</div>
         <div class="controls">
             <button class="btn-action" onclick="ativar('polichinelo')">
-                <svg id="icon-polichinelo" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
-    <button class="final-btn" onclick="finalizar()">
-        Encerrar Missão
-    </button>
+    <button class="final-btn" onclick="finalizar()">Encerrar Missão</button>
 </div>
 
 <div class="overlay" id="overlay">
     <div class="modal">
-        <h2>Relatório Final</h2>
+        <h2 style="text-transform: uppercase; letter-spacing: 1px;">Relatório Final</h2>
         <div id="results-content"></div>
-        <button class="close-modal" onclick="fecharModal()">Reiniciar TAF</button>
+        <button class="close-modal" style="background: var(--steel); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 4px;" onclick="fecharModal()">REINICIAR TAF</button>
     </div>
 </div>
 
@@ -362,43 +380,119 @@
     let interval = null;
     let timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
     
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 3000);
+    function getLimites(idade) {
+        if (!idade) return null;
+        let limiteTotal = (idade < 40) ? 180000 : 240000;
+        return {
+            10: limiteTotal * 0.70,
+            9: limiteTotal * 0.80,
+            8: limiteTotal * 0.90,
+            7: limiteTotal
+        };
     }
 
     function formatTime(ms) {
-        let mins = Math.floor(ms / 60000);
-        let secs = Math.floor((ms % 60000) / 1000);
-        let cents = Math.floor((ms % 1000) / 10);
+        let absMs = Math.abs(ms);
+        let mins = Math.floor(absMs / 60000);
+        let secs = Math.floor((absMs % 60000) / 1000);
+        let cents = Math.floor((absMs % 1000) / 10);
         return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}:${String(cents).padStart(2,'0')}`;
     }
 
-    // Função de Ativação (Sem stop/pause interno)
+    function resetarContagem() {
+        const idade = document.getElementById("idade").value;
+        const limites = getLimites(Number(idade));
+        if (limites) {
+            document.getElementById("regressivo").innerText = formatTime(limites[7]);
+            document.getElementById("notaAtual").innerText = "NOTA: 10";
+            const bar = document.getElementById("progressBar");
+            bar.className = "timeline-bar score-10";
+            bar.style.width = "0%";
+            document.getElementById("regressivo").classList.remove("critical-blink", "reprovado");
+        }
+    }
+
     function ativar(exercise) {
         const idade = document.getElementById("idade").value;
         if (!idade) {
-            showToast("⚠️ SELECIONE A IDADE!");
+            const t = document.getElementById('toast');
+            t.innerText = "⚠️ SELECIONE A IDADE!";
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
             return;
         }
-
-        // Se já for o exercício ativo, não faz nada (não pausa)
         if (activeExercise === exercise) return;
 
-        // Limpa intervalo anterior se existir
         if (interval) clearInterval(interval);
-        
         activeExercise = exercise;
         let startTimestamp = Date.now() - timers[exercise];
 
         interval = setInterval(() => {
             timers[exercise] = Date.now() - startTimestamp;
             document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
+            updateTimeline(); // Chamada a cada 30ms garante atualização visual fluida
         }, 30);
 
         updateUI();
+    }
+
+    function updateTimeline() {
+        const idade = Number(document.getElementById("idade").value);
+        const limites = getLimites(idade);
+        if (!limites) return;
+
+        const total = timers.flexao + timers.abdominal + timers.polichinelo;
+        const bar = document.getElementById("progressBar");
+        const reg = document.getElementById("regressivo");
+        const notaTxt = document.getElementById("notaAtual");
+
+        let currentScoreStr = "REPROVADO";
+        let barClass = "score-fail";
+        let timeLeft = 0;
+
+        // Lógica de decisão de cor e nota em tempo real
+        if (total <= limites[10]) {
+            currentScoreStr = "10";
+            barClass = "score-10";
+            timeLeft = limites[7] - total;
+        } else if (total <= limites[9]) {
+            currentScoreStr = "9";
+            barClass = "score-9";
+            timeLeft = limites[7] - total;
+        } else if (total <= limites[8]) {
+            currentScoreStr = "8";
+            barClass = "score-8";
+            timeLeft = limites[7] - total;
+        } else if (total <= limites[7]) {
+            currentScoreStr = "7";
+            barClass = "score-7";
+            timeLeft = limites[7] - total;
+        } else {
+            currentScoreStr = "REPROVADO";
+            barClass = "score-fail";
+            timeLeft = 0;
+        }
+
+        // Aplicação imediata das classes de estilo
+        if (bar.className !== "timeline-bar " + barClass) {
+            bar.className = "timeline-bar " + barClass;
+        }
+
+        let perc = Math.min((total / limites[7]) * 100, 100);
+        bar.style.width = perc + "%";
+        notaTxt.innerText = "NOTA: " + currentScoreStr;
+
+        if (currentScoreStr === "REPROVADO") {
+            reg.innerText = "00:00:00";
+            if (!bar.classList.contains("critical-blink")) {
+                bar.classList.add("critical-blink");
+                reg.classList.add("critical-blink", "reprovado");
+            }
+        } else {
+            reg.innerText = formatTime(timeLeft);
+            bar.classList.remove("critical-blink");
+            reg.classList.remove("critical-blink", "reprovado");
+        }
     }
 
     function updateUI() {
@@ -413,51 +507,36 @@
             const btn = card.querySelector('.btn-action');
             card.classList.add('active');
             btn.classList.add('running');
-            // Ícone de "Em curso" (Mira/Target)
             btn.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/></svg>`;
         }
     }
 
-    function calcularNota(idade, totalMs) {
-        if (idade <= 30) {
-            if (totalMs <= 110000) return { nota: 10, status: 'aprovado' };
-            if (totalMs <= 130000) return { nota: 8, status: 'aprovado' };
-            if (totalMs <= 150000) return { nota: 6, status: 'aprovado' };
-            return { nota: 'REPROVADO', status: 'reprovado' };
-        } else {
-            if (totalMs <= 140000) return { nota: 10, status: 'aprovado' };
-            if (totalMs <= 160000) return { nota: 8, status: 'aprovado' };
-            if (totalMs <= 180000) return { nota: 6, status: 'aprovado' };
-            return { nota: 'REPROVADO', status: 'reprovado' };
-        }
-    }
-
     function finalizar() {
-        const idade = document.getElementById("idade").value;
-        if (!idade) {
-            showToast("⚠️ SELECIONE A IDADE!");
-            return;
-        }
-
-        // Para tudo
         if (interval) clearInterval(interval);
         activeExercise = null;
         updateUI();
 
         const total = timers.flexao + timers.abdominal + timers.polichinelo;
-        const res = calcularNota(Number(idade), total);
+        const limites = getLimites(Number(document.getElementById("idade").value));
+        
+        let finalNota = "REPROVADO";
+        if (total <= limites[10]) finalNota = "10";
+        else if (total <= limites[9]) finalNota = "9";
+        else if (total <= limites[8]) finalNota = "8";
+        else if (total <= limites[7]) finalNota = "7";
+
+        const statusClass = finalNota === "REPROVADO" ? "reprovado" : "aprovado";
 
         const content = `
-            <div class="result-row"><span>Flexão:</span> <span>${formatTime(timers.flexao)}</span></div>
-            <div class="result-row"><span>Abdominal:</span> <span>${formatTime(timers.abdominal)}</span></div>
-            <div class="result-row"><span>Polichinelo:</span> <span>${formatTime(timers.polichinelo)}</span></div>
-            <div class="total-box">
-                <div style="font-size: 11px; color: #888; text-transform: uppercase;">Tempo Acumulado</div>
-                <div style="font-size: 20px; font-family: 'JetBrains Mono'; color: #fff;">${formatTime(total)}</div>
-                <div class="nota-final ${res.status}">${res.nota}</div>
-                <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">
-                    ${res.status === 'aprovado' ? 'Aprovado para o Serviço' : 'Abaixo do Índice'}
-                </div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 14px; text-align: left; margin-bottom: 15px; background: #000; padding: 12px; border-radius: 4px; border: 1px solid #333;">
+                FLEXÃO: ${formatTime(timers.flexao)}<br>
+                ABDOMINAL: ${formatTime(timers.abdominal)}<br>
+                POLICHINELO: ${formatTime(timers.polichinelo)}
+            </div>
+            <div style="background: #111; padding: 10px; border-radius: 4px;">
+                <div style="font-size: 11px; color: #888; text-transform: uppercase;">Tempo Total de Missão</div>
+                <div style="font-size: 24px; font-family: 'JetBrains Mono'; color: #fff;">${formatTime(total)}</div>
+                <div class="nota-box ${statusClass}">NOTA: ${finalNota}</div>
             </div>
         `;
 
@@ -469,7 +548,7 @@
         document.getElementById("overlay").style.display = "none";
         timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
         document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00:00");
-        activeExercise = null;
+        resetarContagem();
         updateUI();
     }
 </script>
