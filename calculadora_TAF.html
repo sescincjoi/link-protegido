@@ -77,14 +77,13 @@
         .timeline-bar {
             height: 100%;
             width: 0%;
-            transition: width 0.05s linear; /* Transição rápida para movimento suave */
+            transition: width 0.05s linear;
             position: absolute;
             left: 0;
             top: 0;
             opacity: 0.9;
         }
 
-        /* Classes de cores aplicadas via JS em tempo real */
         .score-10 { background-color: var(--success-green) !important; }
         .score-9 { background-color: var(--warning-amber) !important; }
         .score-8 { background-color: var(--warning-orange) !important; }
@@ -380,15 +379,30 @@
     let interval = null;
     let timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
     
+    // Regra BA baseada na solicitação do usuário:
+    // Sub-40: 02:20 a 02:40 é Nota 8. Limite total 03:00.
+    // 40+: 03:20 a 03:40 é Nota 8. Limite total 04:00.
     function getLimites(idade) {
         if (!idade) return null;
-        let limiteTotal = (idade < 40) ? 180000 : 240000;
-        return {
-            10: limiteTotal * 0.70,
-            9: limiteTotal * 0.80,
-            8: limiteTotal * 0.90,
-            7: limiteTotal
-        };
+        
+        const sub40 = idade < 40;
+        
+        // Tempos em milissegundos
+        if (sub40) {
+            return {
+                10: 120000, // Até 02:00
+                9: 140000,  // Até 02:20
+                8: 160000,  // 02:20 a 02:40 (160s = 2min 40s)
+                7: 180000   // 02:40 a 03:00
+            };
+        } else {
+            return {
+                10: 180000, // Até 03:00
+                9: 200000,  // Até 03:20
+                8: 220000,  // 03:20 a 03:40 (220s = 3min 40s)
+                7: 240000   // 03:40 a 04:00
+            };
+        }
     }
 
     function formatTime(ms) {
@@ -430,7 +444,7 @@
         interval = setInterval(() => {
             timers[exercise] = Date.now() - startTimestamp;
             document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
-            updateTimeline(); // Chamada a cada 30ms garante atualização visual fluida
+            updateTimeline();
         }, 30);
 
         updateUI();
@@ -450,30 +464,27 @@
         let barClass = "score-fail";
         let timeLeft = 0;
 
-        // Lógica de decisão de cor e nota em tempo real
+        // Lógica de Notas ajustada
         if (total <= limites[10]) {
             currentScoreStr = "10";
             barClass = "score-10";
-            timeLeft = limites[7] - total;
         } else if (total <= limites[9]) {
             currentScoreStr = "9";
             barClass = "score-9";
-            timeLeft = limites[7] - total;
         } else if (total <= limites[8]) {
             currentScoreStr = "8";
             barClass = "score-8";
-            timeLeft = limites[7] - total;
         } else if (total <= limites[7]) {
             currentScoreStr = "7";
             barClass = "score-7";
-            timeLeft = limites[7] - total;
         } else {
             currentScoreStr = "REPROVADO";
             barClass = "score-fail";
-            timeLeft = 0;
         }
 
-        // Aplicação imediata das classes de estilo
+        // Tempo restante até reprovação (Nota 7 expirar)
+        timeLeft = Math.max(0, limites[7] - total);
+
         if (bar.className !== "timeline-bar " + barClass) {
             bar.className = "timeline-bar " + barClass;
         }
