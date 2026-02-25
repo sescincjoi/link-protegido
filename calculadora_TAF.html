@@ -158,13 +158,13 @@
             background: linear-gradient(145deg, #222, #111);
             border: 1px solid var(--steel);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 10px 15px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             flex: 1;
-            margin: 3px 0;
-            min-height: 50px;
+            margin: 4px 0;
+            min-height: 80px;
             transition: all 0.3s ease;
         }
 
@@ -177,38 +177,41 @@
         .exercise-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
+            align-items: flex-start;
+            margin-bottom: 2px;
         }
 
         .exercise-title {
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
-            color: #ccc;
+            color: #aaa;
+            letter-spacing: 0.5px;
         }
 
         .exercise-goal {
             font-size: 10px;
             background: var(--steel);
-            padding: 1px 5px;
-            border-radius: 3px;
+            padding: 1px 6px;
+            border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
+            color: #eee;
         }
 
         .timer-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
+            justify-content: space-between;
+            width: 100%;
+            flex: 1;
         }
 
         .timer-display {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 28px;
+            font-size: 32px;
             color: #fff;
-            min-width: 140px;
-            text-align: center;
+            text-align: left;
+            flex-grow: 1;
         }
 
         .active .timer-display { color: var(--fire-red); }
@@ -217,8 +220,8 @@
             background: var(--iron);
             border: 1px solid var(--steel);
             color: white;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -226,19 +229,19 @@
             justify-content: center;
             flex-shrink: 0;
             transition: all 0.2s ease;
+            margin-left: 10px;
         }
 
         .btn-action.running {
             background: var(--fire-red);
             box-shadow: 0 0 10px var(--fire-red);
-            cursor: default;
         }
 
         .final-btn {
             background: var(--success-green);
             color: white;
             border: none;
-            padding: 14px 12px calc(16px + env(safe-area-inset-bottom)) 12px;
+            padding: 18px 12px;
             font-family: 'Oswald', sans-serif;
             font-size: 16px;
             font-weight: 700;
@@ -247,7 +250,7 @@
             border-radius: 6px;
             cursor: pointer;
             flex-shrink: 0;
-            margin-bottom: 5px;
+            margin-bottom: calc(10px + env(safe-area-inset-bottom));
             box-shadow: 0 4px 0 #1b4b1e;
         }
 
@@ -357,7 +360,7 @@
             z-index: 1000;
             border: 1px solid var(--warning-amber);
             font-weight: bold;
-            white-space: nowrap; /* Garante que o texto fique em uma linha só */
+            white-space: nowrap;
         }
 
         .critical-blink { animation: blinker 0.4s infinite alternate; }
@@ -396,6 +399,7 @@
         </select>
     </div>
 
+    <!-- Flexão -->
     <div class="card" id="card-flexao">
         <div class="exercise-header">
             <span class="exercise-title">Flexões</span>
@@ -404,11 +408,12 @@
         <div class="timer-row">
             <div class="timer-display" id="flexaoTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('flexao')">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
+    <!-- Abdominal -->
     <div class="card" id="card-abdominal">
         <div class="exercise-header">
             <span class="exercise-title">Abdominais</span>
@@ -417,11 +422,12 @@
         <div class="timer-row">
             <div class="timer-display" id="abdominalTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('abdominal')">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
 
+    <!-- Polichinelo -->
     <div class="card" id="card-polichinelo">
         <div class="exercise-header">
             <span class="exercise-title">Polichinelos</span>
@@ -430,7 +436,7 @@
         <div class="timer-row">
             <div class="timer-display" id="polichineloTime">00:00:00</div>
             <button class="btn-action" onclick="ativar('polichinelo')">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
             </button>
         </div>
     </div>
@@ -591,7 +597,7 @@
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.btn-action').forEach(b => {
             b.classList.remove('running');
-            b.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
+            b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
         });
 
         if (activeExercise) {
