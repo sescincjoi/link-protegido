@@ -1,301 +1,479 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora de TAF</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TAF - Bombeiros Militar</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fire-red: #d32f2f;
+            --dark-red: #8b0000;
+            --coal: #121212;
+            --iron: #2a2a2a;
+            --steel: #454545;
+            --warning-amber: #ffc107;
+            --text-white: #f5f5f5;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0d0d0d;
-  color:#fff;
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-}
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-header{
-  background:#b30000;
-  padding:14px 25px;
-  text-align:center;
-  font-weight:bold;
-  font-size:20px;
-  letter-spacing:1px;
-}
+        body {
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; /* Impede rolagem na tela principal */
+        }
 
-.container{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  padding:20px 25px;
-  width:100%;
-  max-width:700px;
-  margin:auto;
-}
+        header {
+            background: linear-gradient(180deg, var(--fire-red) 0%, var(--dark-red) 100%);
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid var(--warning-amber);
+        }
 
-/* IDADE */
-.age-container{
-  margin-bottom:30px;
-}
+        header h1 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-.age-container select{
-  background:#000;
-  color:#fff;
-  border:2px solid #444;
-  padding:6px 18px;
-  font-size:16px;
-  border-radius:6px;
-}
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribui os itens para ocupar a tela */
+        }
 
-/* CARDS */
-.card{
-  width:100%;
-  background:#1a1a1a;
-  padding:8px 22px;
-  margin-bottom:14px;
-  border-radius:6px;
-  border:1px solid #333;
-  transition:.3s;
-}
+        .input-group {
+            background: var(--iron);
+            padding: 10px 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--warning-amber);
+        }
 
-.card.active{
-  animation:pulseShadow 1s infinite;
-}
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
 
-@keyframes pulseShadow{
-  0%{ box-shadow:0 0 5px #ff0000;}
-  50%{ box-shadow:0 0 20px #ff0000;}
-  100%{ box-shadow:0 0 5px #ff0000;}
-}
+        select {
+            width: 100%;
+            background: #000;
+            color: var(--warning-amber);
+            border: 1px solid var(--steel);
+            padding: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            border-radius: 4px;
+            outline: none;
+        }
 
-.exercise-title{
-  text-transform:uppercase;
-  font-weight:bold;
-  font-size:14px;
-  margin-bottom:6px;
-}
+        .card {
+            background: linear-gradient(145deg, #222, #1a1a1a);
+            border: 1px solid var(--steel);
+            border-radius: 6px;
+            padding: 12px 18px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-.bottom-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--steel);
+        }
 
-.timer{
-  font-size:24px;
-  letter-spacing:2px;
-  margin:auto;
-}
+        .card.active {
+            border-color: var(--fire-red);
+            background: #1e1e1e;
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.3);
+        }
 
-.play-btn{
-  font-size:22px;
-  cursor:pointer;
-  color:#fff;
-  background:none;
-  border:none;
-}
+        .card.active::before {
+            background: var(--fire-red);
+            animation: pulse-border 1.5s infinite;
+        }
 
-.play-btn.running{
-  animation:pulseIcon 1s infinite;
-}
+        @keyframes pulse-border {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
 
-@keyframes pulseIcon{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.25);}
-  100%{transform:scale(1);}
-}
+        .exercise-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
 
-.final-btn{
-  margin-top:15px;
-  padding:10px 28px;
-  background:#006600;
-  border:none;
-  color:white;
-  font-weight:bold;
-  border-radius:6px;
-  cursor:pointer;
-}
+        .exercise-title {
+            text-transform: uppercase;
+            font-size: 15px;
+            font-weight: 700;
+            color: #eee;
+        }
 
-/* MODAL */
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  animation:fadeIn .4s;
-}
+        .exercise-goal {
+            font-size: 11px;
+            background: var(--steel);
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+        }
 
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            color: var(--text-white);
+            text-align: center;
+            margin: 5px 0;
+        }
 
-.modal{
-  background:#1c1c1c;
-  padding:20px 28px;
-  border-radius:8px;
-  border:2px solid #444;
-  text-align:center;
-}
+        .active .timer-display {
+            color: var(--fire-red);
+        }
 
-.nota{
-  font-size:32px;
-  font-weight:bold;
-  color:#ff0000;
-  margin-top:10px;
-}
-</style>
+        .controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-action {
+            background: var(--steel);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-action.running {
+            background: var(--fire-red);
+            box-shadow: 0 0 10px var(--fire-red);
+            cursor: default; /* Indica que clicar novamente não faz nada */
+        }
+
+        .final-btn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        /* Modal */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal {
+            background: var(--iron);
+            width: 100%;
+            max-width: 380px;
+            border: 2px solid var(--fire-red);
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-family: 'JetBrains Mono', monospace;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .total-box {
+            background: #000;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .nota-final {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--warning-amber);
+            margin: 5px 0;
+        }
+
+        .reprovado { color: #ff4444; }
+        .aprovado { color: #44ff44; }
+
+        .close-modal {
+            margin-top: 15px;
+            background: var(--steel);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        #toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-red);
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+            border: 1px solid var(--warning-amber);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        svg { fill: currentColor; }
+    </style>
 </head>
-
 <body>
 
-<header>Calculadora de TAF 🔥</header>
+<header>
+    <h1>
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
+        TAF - BOMBEIROS
+    </h1>
+</header>
 
 <div class="container">
-
-  <div class="age-container">
-    <select id="idade">
-      <option value="">Selecione a idade</option>
-      <script>
-        for(let i=18;i<=70;i++){
-          document.write(`<option value="${i}">${i} anos</option>`)
-        }
-      </script>
-    </select>
-  </div>
-
-  <div class="card" id="card-flexao">
-    <div class="exercise-title">Flexões (30)</div>
-    <div class="bottom-row">
-      <div class="timer" id="flexaoTime">00:00:00</div>
-      <button class="play-btn" onclick="start('flexao', this)">▶</button>
+    <div class="input-group">
+        <label for="idade">Idade do Operacional</label>
+        <select id="idade">
+            <option value="">Selecione...</option>
+            <script>
+                for(let i=18;i<=65;i++){
+                    document.write(`<option value="${i}">${i} ANOS</option>`);
+                }
+            </script>
+        </select>
     </div>
-  </div>
 
-  <div class="card" id="card-abdominal">
-    <div class="exercise-title">Abdominais (45)</div>
-    <div class="bottom-row">
-      <div class="timer" id="abdominalTime">00:00:00</div>
-      <button class="play-btn" onclick="start('abdominal', this)">▶</button>
+    <!-- Exercícios -->
+    <div class="card" id="card-flexao">
+        <div class="exercise-info">
+            <span class="exercise-title">Flexões de Braço</span>
+            <span class="exercise-goal">30 Rep.</span>
+        </div>
+        <div class="timer-display" id="flexaoTime">00:00:00</div>
+        <div class="controls">
+            <button class="btn-action" onclick="ativar('flexao')">
+                <svg id="icon-flexao" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+            </button>
+        </div>
     </div>
-  </div>
 
-  <div class="card" id="card-polichinelo">
-    <div class="exercise-title">Polichinelos (45)</div>
-    <div class="bottom-row">
-      <div class="timer" id="polichineloTime">00:00:00</div>
-      <button class="play-btn" onclick="start('polichinelo', this)">▶</button>
+    <div class="card" id="card-abdominal">
+        <div class="exercise-info">
+            <span class="exercise-title">Abdominais</span>
+            <span class="exercise-goal">45 Rep.</span>
+        </div>
+        <div class="timer-display" id="abdominalTime">00:00:00</div>
+        <div class="controls">
+            <button class="btn-action" onclick="ativar('abdominal')">
+                <svg id="icon-abdominal" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+            </button>
+        </div>
     </div>
-  </div>
 
-  <button class="final-btn" onclick="finalizar()">FINALIZAR TESTE</button>
+    <div class="card" id="card-polichinelo">
+        <div class="exercise-info">
+            <span class="exercise-title">Polichinelos</span>
+            <span class="exercise-goal">45 Rep.</span>
+        </div>
+        <div class="timer-display" id="polichineloTime">00:00:00</div>
+        <div class="controls">
+            <button class="btn-action" onclick="ativar('polichinelo')">
+                <svg id="icon-polichinelo" viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+            </button>
+        </div>
+    </div>
 
+    <button class="final-btn" onclick="finalizar()">
+        Encerrar Missão
+    </button>
 </div>
 
-<div class="modal-overlay" id="modal">
-  <div class="modal" id="modalContent"></div>
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <h2>Relatório Final</h2>
+        <div id="results-content"></div>
+        <button class="close-modal" onclick="fecharModal()">Reiniciar TAF</button>
+    </div>
 </div>
+
+<div id="toast"></div>
 
 <script>
-let activeExercise=null;
-let interval=null;
-let startTimestamp=null;
+    let activeExercise = null;
+    let interval = null;
+    let timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
+    
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+    }
 
-const timers={
-  flexao:0,
-  abdominal:0,
-  polichinelo:0
-};
+    function formatTime(ms) {
+        let mins = Math.floor(ms / 60000);
+        let secs = Math.floor((ms % 60000) / 1000);
+        let cents = Math.floor((ms % 1000) / 10);
+        return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}:${String(cents).padStart(2,'0')}`;
+    }
 
-let totalTime=0;
+    // Função de Ativação (Sem stop/pause interno)
+    function ativar(exercise) {
+        const idade = document.getElementById("idade").value;
+        if (!idade) {
+            showToast("⚠️ SELECIONE A IDADE!");
+            return;
+        }
 
-function formatTime(ms){
-  let minutes=Math.floor(ms/60000);
-  let seconds=Math.floor((ms%60000)/1000);
-  let centiseconds=Math.floor((ms%1000)/10);
-  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}:${String(centiseconds).padStart(2,'0')}`;
-}
+        // Se já for o exercício ativo, não faz nada (não pausa)
+        if (activeExercise === exercise) return;
 
-function clearActive(){
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
-  document.querySelectorAll('.play-btn').forEach(b=>{
-    b.classList.remove('running');
-    b.innerHTML="▶";
-  });
-}
+        // Limpa intervalo anterior se existir
+        if (interval) clearInterval(interval);
+        
+        activeExercise = exercise;
+        let startTimestamp = Date.now() - timers[exercise];
 
-function start(exercise,btn){
-  const idade=document.getElementById("idade").value;
-  if(!idade){alert("Selecione a idade.");return;}
+        interval = setInterval(() => {
+            timers[exercise] = Date.now() - startTimestamp;
+            document.getElementById(exercise + "Time").innerText = formatTime(timers[exercise]);
+        }, 30);
 
-  if(interval) clearInterval(interval);
+        updateUI();
+    }
 
-  activeExercise=exercise;
-  clearActive();
+    function updateUI() {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.btn-action').forEach(b => {
+            b.classList.remove('running');
+            b.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`;
+        });
 
-  document.getElementById("card-"+exercise).classList.add("active");
-  btn.classList.add("running");
-  btn.innerHTML="⏱";
+        if (activeExercise) {
+            const card = document.getElementById("card-" + activeExercise);
+            const btn = card.querySelector('.btn-action');
+            card.classList.add('active');
+            btn.classList.add('running');
+            // Ícone de "Em curso" (Mira/Target)
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/></svg>`;
+        }
+    }
 
-  startTimestamp=Date.now()-timers[exercise];
+    function calcularNota(idade, totalMs) {
+        if (idade <= 30) {
+            if (totalMs <= 110000) return { nota: 10, status: 'aprovado' };
+            if (totalMs <= 130000) return { nota: 8, status: 'aprovado' };
+            if (totalMs <= 150000) return { nota: 6, status: 'aprovado' };
+            return { nota: 'REPROVADO', status: 'reprovado' };
+        } else {
+            if (totalMs <= 140000) return { nota: 10, status: 'aprovado' };
+            if (totalMs <= 160000) return { nota: 8, status: 'aprovado' };
+            if (totalMs <= 180000) return { nota: 6, status: 'aprovado' };
+            return { nota: 'REPROVADO', status: 'reprovado' };
+        }
+    }
 
-  interval=setInterval(()=>{
-    let now=Date.now();
-    timers[exercise]=now-startTimestamp;
-    totalTime=timers.flexao+timers.abdominal+timers.polichinelo;
-    document.getElementById(exercise+"Time").innerText=formatTime(timers[exercise]);
-  },10);
-}
+    function finalizar() {
+        const idade = document.getElementById("idade").value;
+        if (!idade) {
+            showToast("⚠️ SELECIONE A IDADE!");
+            return;
+        }
 
-function calcularNota(idade,tempo){
-  if(idade<=40){
-    if(tempo<=120000) return 10;
-    if(tempo<=140000) return 9;
-    if(tempo<=160000) return 8;
-    if(tempo<=180000) return 7;
-    return "REPROVADO";
-  }else{
-    if(tempo<=180000) return 10;
-    if(tempo<=200000) return 9;
-    if(tempo<=220000) return 8;
-    if(tempo<=240000) return 7;
-    return "REPROVADO";
-  }
-}
+        // Para tudo
+        if (interval) clearInterval(interval);
+        activeExercise = null;
+        updateUI();
 
-function finalizar(){
-  if(interval) clearInterval(interval);
-  clearActive();
+        const total = timers.flexao + timers.abdominal + timers.polichinelo;
+        const res = calcularNota(Number(idade), total);
 
-  const idade=Number(document.getElementById("idade").value);
-  if(!idade){alert("Selecione a idade.");return;}
+        const content = `
+            <div class="result-row"><span>Flexão:</span> <span>${formatTime(timers.flexao)}</span></div>
+            <div class="result-row"><span>Abdominal:</span> <span>${formatTime(timers.abdominal)}</span></div>
+            <div class="result-row"><span>Polichinelo:</span> <span>${formatTime(timers.polichinelo)}</span></div>
+            <div class="total-box">
+                <div style="font-size: 11px; color: #888; text-transform: uppercase;">Tempo Acumulado</div>
+                <div style="font-size: 20px; font-family: 'JetBrains Mono'; color: #fff;">${formatTime(total)}</div>
+                <div class="nota-final ${res.status}">${res.nota}</div>
+                <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">
+                    ${res.status === 'aprovado' ? 'Aprovado para o Serviço' : 'Abaixo do Índice'}
+                </div>
+            </div>
+        `;
 
-  const nota=calcularNota(idade,totalTime);
+        document.getElementById("results-content").innerHTML = content;
+        document.getElementById("overlay").style.display = "flex";
+    }
 
-  setTimeout(()=>{
-    document.getElementById("modalContent").innerHTML=`
-      <h3>RESULTADO FINAL</h3>
-      <p>Flexões: ${formatTime(timers.flexao)}</p>
-      <p>Abdominais: ${formatTime(timers.abdominal)}</p>
-      <p>Polichinelos: ${formatTime(timers.polichinelo)}</p>
-      <hr>
-      <p><strong>Tempo Total:</strong> ${formatTime(totalTime)}</p>
-      <div class="nota">NOTA: ${nota}</div>
-    `;
-    document.getElementById("modal").style.display="flex";
-  },2000);
-}
-
-document.getElementById("modal").onclick=function(){
-  this.style.display="none";
-}
+    function fecharModal() {
+        document.getElementById("overlay").style.display = "none";
+        timers = { flexao: 0, abdominal: 0, polichinelo: 0 };
+        document.querySelectorAll('.timer-display').forEach(d => d.innerText = "00:00:00");
+        activeExercise = null;
+        updateUI();
+    }
 </script>
 
 </body>
 </html>
+
